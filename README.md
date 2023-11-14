@@ -1,4 +1,4 @@
-# <img src="knu_logo.svg" width="50" height="50"> 경북대 이어살기 커뮤니티 [KNU - CON]
+<!-- # <img src="knu_logo.svg" width="50" height="50"> 경북대 이어살기 커뮤니티 [KNU - CON]
 
 ### 1. [서비스 소개](notion://www.notion.so/928bf1591414452798c30e166d1b8d69#%EC%84%9C%EB%B9%84%EC%8A%A4-%EC%86%8C%EA%B0%9C)
 
@@ -69,4 +69,4 @@
 
 ### 💡 이지수 (jisu74) : [lgs010704@gmail.com](mailto:lgs010704@gmail.com)
 
-### 💡 노유수 (noFlowWater) : [noyusu98@gmail.com](mailto:noyusu98@gmail.com)
+### 💡 노유수 (noFlowWater) : [noyusu98@gmail.com](mailto:noyusu98@gmail.com) -->
