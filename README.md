@@ -1,4 +1,4 @@
-# <img src="knu_logo.svg" width="50" height="50">경북대 이어살기 커뮤니티 [KNU - CON]
+# <img src="knu_logo.svg" width="50" height="50"> 경북대 이어살기 커뮤니티 [KNU - CON]
 
 
 
