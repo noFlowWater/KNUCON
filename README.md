@@ -1,4 +1,6 @@
-# 🐱 반려묘 다이어리 [Mobile App Project]
+# <img src="knu_logo.svg" width="50" height="50"> 경북대 이어살기 커뮤니티 [KNU - CON]
+
+
 
 test
 
@@ -14,7 +16,7 @@ test
 
 # 서비스 소개
 
-> 여러분의 반려묘에 대한 기록을 남기고, 다른 반려묘와의 교류를 즐겨보세요.
+> 경북대 주변의 이어살기 연결을 도와주는 서비스 및 커뮤니티입니다.
 > 
 
 ## ✨ 서비스 배경
@@ -31,15 +33,15 @@ test
 
 # 서비스 플로우
 
-### 1. 로그인
+### 1. 회원가입/로그인
 
-### 2. 다이어리
+### 2. 방 등록 및 방 게시글 올리기
 
-### 3. 분양게시판
+### 3. 게시글 조회,검색 및 사용자 찜 목록 기반 게시글 추천
 
-### 4. 길고양이 커뮤니티
+### 4. 채팅방을 이용한 사용자의 이어살기 연결
 
-### 5. 사용자 정보
+### 5. 나의 정보 조회
 
 # 데모 영상
 
@@ -48,19 +50,18 @@ test
 # 사용된 스택
 
 **Cooperation** :
-<img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=Github&logoColor=white">
+<img alt="Static Badge" src="https://img.shields.io/badge/Github-%23181717?style=for-the-badge&logo=Github&logoColor=white">
 
 **Design** :
-<img src="https://img.shields.io/badge/Figma-F24E1E?style=for-the-badge&logo=Figma&logoColor=white">
+<img alt="Static Badge" src="https://img.shields.io/badge/Figma-%23F24E1E?style=for-the-badge&logo=Figma&logoColor=white">
 
 **Front-end** :
-<img src="https://img.shields.io/badge/Swift-F05138?style=for-the-badge&logo=Swift&logoColor=white">
+<img alt="Static Badge" src="https://img.shields.io/badge/Svelte-%23FF3E00?style=for-the-badge&logo=Svelte&logoColor=white">
 
 **Back-end** :
-<img src="https://img.shields.io/badge/Spring-6DB33F?style=for-the-badge&logo=Spring&logoColor=white">
-<img src="https://img.shields.io/badge/Mysql-4479A1?style=for-the-badge&logo=Mysql&logoColor=white">
+<img alt="Static Badge" src="https://img.shields.io/badge/Fastapi-%23009688?style=for-the-badge&logo=Fastapi&logoColor=white">
+<img alt="Static Badge" src="https://img.shields.io/badge/Oracle-%23F80000?style=for-the-badge&logo=Oracle&logoColor=white">
 
-[[GitHub] 기술스택 배지로 깃허브 프로필, README.md 예쁘게 꾸미기](https://cocoon1787.tistory.com/689)
 
 # 기대 효과 & 확장 가능성
 
@@ -68,10 +69,8 @@ test
 
 # Team INFO
 
-### 💡 전지웅 (wldnd2) : [jiwoong000628@gmail.com](mailto:jiwoong000628@gmail.com)
+### 💡 변지섭 (Jiseob-Byeon) : [alfred.j.byeon@gmail.com](mailto:alfred.j.byeon@gmail.com)
 
-### 💡 이정민 (min1018) : [meet214ba@naver.com](mailto:meet214ba@naver.com)
+### 💡 이지수 (jisu74) : [lgs010704@gmail.com](mailto:lgs010704@gmail.com)
 
 ### 💡 노유수 (noFlowWater) : [noyusu98@gmail.com](mailto:noyusu98@gmail.com)
-
-### 💡 배근영 (flora101) : [flora8207@naver.com](mailto:flora8207@naver.com)
