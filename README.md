@@ -1,4 +1,4 @@
-# ![image](image.png){: width="50" height="50"}</br>
+# <img src="image.png" width="50" height="50">
 경북대 이어살기 커뮤니티 [KNU - CON]
 
 
