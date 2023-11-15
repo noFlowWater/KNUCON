@@ -53,6 +53,7 @@
 
 **Front-end** :
 <img alt="Static Badge" src="https://img.shields.io/badge/Svelte-%23FF3E00?style=for-the-badge&logo=Svelte&logoColor=white">
+<img alt="Static Badge" src="https://img.shields.io/badge/Bootstrap-7952B3?style=for-the-badge&logo=Bootstrap&logoColor=white">
 
 **Back-end** :
 <img alt="Static Badge" src="https://img.shields.io/badge/Fastapi-%23009688?style=for-the-badge&logo=Fastapi&logoColor=white">
