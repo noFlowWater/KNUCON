@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from fastapi.security import HTTPBasic
 from starlette.middleware.cors import CORSMiddleware
 
+# test
+import domain.user.user_router as user_router
 # import domain.connection.connection_router as connection_router
 # import domain.app.app_router as app_router
 # import domain.volume.volume_router as volume_router
@@ -28,7 +30,4 @@ allow_headers=["*"],
 
 security = HTTPBasic()
 
-# app.include_router(device_router.router)
-#app.include_router(app_router.router)
-# app.include_router(volume_router.router)
-# app.include_router(apprun_router.router)
+app.include_router(user_router.router)
