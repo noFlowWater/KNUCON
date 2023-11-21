@@ -1,10 +1,19 @@
 from fastapi import APIRouter, Header
 from starlette import status
-from domain.user.user_schema import UserRegister, UserLogin#, UserQuit
+from domain.user.user_schema import UserRegister, UserLogin, UserQuit
+from fastapi import Depends, HTTPException, status, FastAPI
+from fastapi.security import OAuth2PasswordBearer
+from starlette.requests import Request
+from jose import jwt, JWTError
 
 import domain.user.user_crud as user_crud
 
 router = APIRouter(prefix = '/users')
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+SECRET_KEY = "appleisgreat1234"  # Make sure to keep it consistent
+ALGORITHM = "HS256"
 
 @router.post("") # POST /users
 def register_user(user_register : UserRegister):
@@ -14,12 +23,21 @@ def register_user(user_register : UserRegister):
 def login_user(user_login: UserLogin):
     return user_crud.login_user(user_login)
 
-"""
-@router.delete("/{user_id}")  # DELETE /users/{user_id}
-def quit_user(user_id: str, user_quit: UserQuit):
-    return user_crud.quit_user(user_id, user_quit)
-"""
 
 @router.post("/logout/{user_id}")
 def logout_user(user_id: str):
     return user_crud.logout_user(user_id)
+
+def get_current_user_id(token: str = Depends(oauth2_scheme)) -> str:
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        return user_id
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+@router.delete("/quit")
+def quit_user(user_quit: UserQuit, user_id: str = Depends(get_current_user_id)):
+    return user_crud.quit_user(user_id, user_quit)
