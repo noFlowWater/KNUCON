@@ -1,15 +1,17 @@
-from domain.post.post_schema import UserPostInput
-from util import generate_unique_id
 from datetime import datetime
 
-def create_post(create_post: UserPostInput, conn) -> str:
+from domain.post.post_schema import PostInput
+from util import generate_unique_id
+
+
+def create_post(create_post: PostInput, conn, user_id) -> str:
     cursor = conn.cursor()
     data = []
     post_id = generate_unique_id(conn, 'P', 'POST', 'post_id') # create unique post_id 
     post_date = datetime.now()
     sql = "INSERT INTO post (post_id, rid, \"UID\", post_status, post_date, post_title, post_content) VALUES \
         (:1, :2, :3, :4, :5, :6, :7)"
-    data = [(post_id, create_post.room_id, create_post.uid, create_post.post_status, post_date,\
+    data = [(post_id, create_post.room_id, user_id, create_post.post_status, post_date,\
               create_post.post_title, create_post.post_content)]
     try:
         cursor.executemany(sql, data)
