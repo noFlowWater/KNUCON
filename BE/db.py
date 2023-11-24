@@ -1,10 +1,22 @@
-import os 
+import os
+import platform
+
 import oracledb
 
-# set environment variables and lib_dir
-os.putenv('NLS_LANG', 'AMERICAN_AMERICA.UTF8')
-lib_dir = "/opt/oracle/instantclient_19_8"
+# Handle env related with OS
+os_name = platform.system()
+if os_name == "Windows":
+    os.chdir('C:\\oracle2\\instantclient_19_21')
+    lib_dir = 'C:\\oracle2\\instantclient_19_21'
+    CONN_STR = "localhost:1521/orcl2"
+elif os_name == "Darwin":
+    os.chdir('/opt/oracle/instantclient_19_8')
+    lib_dir = '/opt/oracle/instantclient_19_8'
+    CONN_STR = "localhost:1521/xe"
 
+os.putenv('NLS_LANG','AMERICAN_AMERICA.UTF8')
+USER_ID = "dacsternary"
+USER_PW = "pass"
 try: # init_oracle client
         oracledb.init_oracle_client(lib_dir = lib_dir)
 except oracledb.Error as e:

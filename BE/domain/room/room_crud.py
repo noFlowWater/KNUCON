@@ -1,33 +1,29 @@
-from jose import jwt
-from datetime import datetime, timedelta
-
 import os
-os.chdir('C:\oracle2\instantclient_19_21')
-os.putenv('NLS_LANG','AMERICAN_AMERICA.UTF8')
-
+import platform
 import oracledb
-import requests
-import json
 import random  # Import random module
-import sys
 from domain.room.room_schema import RoomRegister, RoomInfo, MyRoomList
-from domain.user.user_schema import UserLogin
+from datetime import datetime
 
-print("---- Start of Oracle-Python Test ---\n")
+# Handle env related with OS
+os_name = platform.system()
+if os_name == "Windows":
+    os.chdir('C:\\oracle2\\instantclient_19_21')
+    lib_dir = 'C:\\oracle2\\instantclient_19_21'
+    CONN_STR = "localhost:1521/orcl2"
+elif os_name == "Darwin":
+    os.chdir('/opt/oracle/instantclient_19_8')
+    lib_dir = '/opt/oracle/instantclient_19_8'
+    CONN_STR = "localhost:1521/xe"
+
+os.putenv('NLS_LANG','AMERICAN_AMERICA.UTF8')
 USER_ID = "dacsternary"
 USER_PW = "pass"
-CONN_STR = "localhost:1521/orcl2"
 
-lib_dir = "C:\oracle2\instantclient_19_21"
 try:
-    print("\n >>> Oracle client initialization starts ...\n")
     oracledb.init_oracle_client(lib_dir=lib_dir)
 except Exception as err:
-    print("Error connecting: cx_Oracle.init_oracle_client()")
     print(err)
-    sys.exit(1)
-
-print("\n <<< Oracle client initialization ended ...\n")
 
 try:
     conn = oracledb.connect(user=USER_ID, password=USER_PW, dsn=CONN_STR)
@@ -41,7 +37,6 @@ cursor = conn.cursor()
 def generate_unique_room_id():
     while True:
         room_id = 'R' + ''.join([str(random.randint(0, 9)) for _ in range(7)])
-        
         cursor.execute("SELECT COUNT(*) FROM \"ROOM\" WHERE room_id = :1", (room_id,))
         (room_id_count,) = cursor.fetchone()
         
