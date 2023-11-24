@@ -4,11 +4,13 @@
   import Home from './routes/Home.svelte';
   import Login from './routes/Login.svelte';
   import Register from './routes/Register.svelte';
+  import Post from './routes/Post.svelte';
 
   const routes = {
     '/': Login,
     '/register': Register,
-    '/home': Home
+    '/home': Home,
+    '/post': Post
   };
 </script>
 
