@@ -10,9 +10,8 @@ import requests
 import json
 import random  # Import random module
 import sys
-from domain.room.room_schema import RoomRegister
+from domain.room.room_schema import RoomRegister, RoomInfo, MyRoomList
 from domain.user.user_schema import UserLogin
-
 
 print("---- Start of Oracle-Python Test ---\n")
 USER_ID = "dacsternary"
@@ -83,6 +82,56 @@ def register_room(user_id: str, room_register : RoomRegister) -> str:
         error_message = f"Room registration failed: {str(e)}"
         print(error_message)
         return error_message
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+
+def get_my_rooms(user_id: str) -> MyRoomList:
+
+    try:
+        cursor.execute("SELECT * FROM ROOM WHERE \"UID\" = :1", (user_id,))
+        rows = cursor.fetchall()
+
+        rooms = [RoomInfo(
+            room_id=row[0],
+            uid=row[1],
+            room_date=row[2],
+            room_status=row[3],
+            room_nickname=row[4],
+            address=row[5],
+            area=row[6],
+            deposit=row[7],
+            price=row[8],
+            room_type=row[9],
+            direction=row[10],
+            floor=row[11],
+            gate=row[12],
+            is_contract=row[13],
+            rent_aid=row[14],
+            preview=row[15],
+            extension=row[16],
+            elec_bill=row[17],
+            water_bill=row[18],
+            gas_bill=row[19],
+            kit_sep=row[20],
+            stove_type=row[21],
+            fridge=row[22],
+            ac=row[23],
+            mw=row[24],
+            balcony=row[25],
+            dryer=row[26],
+            picture=row[27]  # Assuming the picture is stored as a BLOB and is the last column
+        ) for row in rows]
+
+        return MyRoomList(rooms=rooms)
+
+    except Exception as e:
+        print(f"Error fetching rooms: {str(e)}")
+        return MyRoomList(rooms=[])
 
     finally:
         if cursor:
