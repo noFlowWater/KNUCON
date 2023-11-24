@@ -17,6 +17,8 @@ def create_post(create_post: UserPostInput, conn) -> str:
         conn.commit()
     except:
         result = "게시물 삽입 중 에러가 발생하였습니다."
+    cursor.close()
+    conn.close()
     return result
 
 def list_post(user_id, conn) -> list[str]:
