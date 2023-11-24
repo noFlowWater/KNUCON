@@ -17,19 +17,16 @@ class UserLogin(BaseModel):
     login_id: constr(strip_whitespace=True)
     login_password: constr(strip_whitespace=True)
 
+    # constr(strip_whitespace=True)
     @validator('login_id', 'login_password')
     def not_null(cls, v):
         if not v:
             raise ValueError('Empty values are not allowed.')
         return v
     
-class UserProfile(BaseModel):
-    profile_click : 
-
-
 class UserQuit(BaseModel):
     login_password: constr(strip_whitespace=True)
-    quit_check: bool    #사용자가 Yes를 눌렀는 지 확인
+    quit_confirm: bool
 
     @validator('login_password')
     def not_null(cls, v):
@@ -37,5 +34,3 @@ class UserQuit(BaseModel):
             raise ValueError('Empty values are not allowed.')
         return v
 
-class UserLogout(BaseModel):
-    logout_check : bool    #사용자가 Yes를 눌렀는 지 확인
