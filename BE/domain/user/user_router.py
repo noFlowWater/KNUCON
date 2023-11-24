@@ -1,11 +1,8 @@
-from fastapi import APIRouter, Header
-from starlette import status
-from domain.user.user_schema import UserRegister, UserLogin, UserQuit
-from fastapi import Depends, HTTPException, status, FastAPI
+from fastapi import Depends, HTTPException, APIRouter
 from fastapi.security import OAuth2PasswordBearer
-from starlette.requests import Request
 from jose import jwt, JWTError
 
+from domain.user.user_schema import UserRegister, UserLogin, UserQuit
 import domain.user.user_crud as user_crud
 
 router = APIRouter(prefix = '/users')
@@ -22,7 +19,6 @@ def register_user(user_register : UserRegister):
 @router.post("/login") # POST /users/login 
 def login_user(user_login: UserLogin):
     return user_crud.login_user(user_login)
-
 
 @router.post("/logout/{user_id}")
 def logout_user(user_id: str):
