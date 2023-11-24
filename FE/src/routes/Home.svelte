@@ -1,8 +1,9 @@
 <script>
-    let image_link = "/explanation.jpg"
-    // need image or text
+  
 </script>
 
-<div class="container my-3" style="margin-top: 60px">
-    <img src={image_link} alt="Explain EdgeCPS"/>
+
+<div class="container" style="margin-top: 100px;">
+  <h1>Welcome!</h1>
+  <!-- 여기에 페이지에 해당하는 내용 랜더링 -->
 </div>
