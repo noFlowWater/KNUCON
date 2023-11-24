@@ -13,7 +13,7 @@ app = FastAPI()
 origins=[
         "http://localhost:8000",       # FastAPI server url
         "http://127.0.0.1:8001",
-        # "http://localhost:5173",     # Need Svelte(Frontend) server url
+        "http://localhost:5173",     # Need Svelte(Frontend) server url
         # "http://155.230.36.27:5173",
         # "http://127.0.0.1:5173",
         ]  
