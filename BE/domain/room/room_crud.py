@@ -49,9 +49,20 @@ def generate_unique_room_id():
         if room_id_count == 0:
             return room_id
 
+# New function to check for existing rooms with room_status = 0
+def check_existing_room(user_id: str) -> bool:
+    cursor.execute("SELECT COUNT(*) FROM ROOM WHERE \"UID\" = :1 AND ROOM_STATUS = 0", (user_id,))
+    (count,) = cursor.fetchone()
+    return count > 0
+
 # 새로운 함수: 방 등록
 def register_room(user_id: str, room_register : RoomRegister) -> str:
     try:
+
+        # Check if the user already has a room with room_status = 0
+        if check_existing_room(user_id):
+            return "User already has a room"
+        
         # 고유한 room_id 생성
         room_id = generate_unique_room_id()
 
