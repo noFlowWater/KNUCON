@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from domain.post.post_schema import Post
+from domain.post.post_schema import UserPostInput
 from db import get_db_connection
 from typing import Optional
 import domain.post.post_crud as post_crud
@@ -9,8 +9,7 @@ router = APIRouter(
 )
 
 @router.post("") # POST /posts: create new post
-def create_post(create_post: Post, conn=Depends(get_db_connection)):
-
+def create_post(create_post: UserPostInput, conn=Depends(get_db_connection)):
     return post_crud.create_post(create_post)
 
 @router.get("")  # GET /posts: GET all posts
