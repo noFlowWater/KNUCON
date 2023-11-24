@@ -1,33 +1,32 @@
-from jose import jwt
+import os
+import platform
+import random  # Import random module
 from datetime import datetime, timedelta
 
-import os
-os.chdir('C:\oracle2\instantclient_19_21')
-os.putenv('NLS_LANG','AMERICAN_AMERICA.UTF8')
-
 import oracledb
-import requests
-import json
-import random  # Import random module
-import sys
+from jose import jwt
+
 from domain.user.user_schema import UserRegister, UserLogin, UserQuit
 
+# Handle env related with OS
+os_name = platform.system()
+if os_name == "Windows":
+    os.chdir('C:\\oracle2\\instantclient_19_21')
+    lib_dir = 'C:\\oracle2\\instantclient_19_21'
+    CONN_STR = "localhost:1521/orcl2"
+elif os_name == "Darwin":
+    os.chdir('/opt/oracle/instantclient_19_8')
+    lib_dir = '/opt/oracle/instantclient_19_8'
+    CONN_STR = "localhost:1521/xe"
 
-print("---- Start of Oracle-Python Test ---\n")
+os.putenv('NLS_LANG','AMERICAN_AMERICA.UTF8')
 USER_ID = "dacsternary"
 USER_PW = "pass"
-CONN_STR = "localhost:1521/orcl2"
 
-lib_dir = "C:\oracle2\instantclient_19_21"
 try:
-    print("\n >>> Oracle client initialization starts ...\n")
     oracledb.init_oracle_client(lib_dir=lib_dir)
 except Exception as err:
-    print("Error connecting: cx_Oracle.init_oracle_client()")
     print(err)
-    sys.exit(1)
-
-print("\n <<< Oracle client initialization ended ...\n")
 
 try:
     conn = oracledb.connect(user=USER_ID, password=USER_PW, dsn=CONN_STR)
@@ -78,8 +77,6 @@ def register_user(user_register: UserRegister) -> str:
             cursor.close()
         if conn:
             conn.close()
-
-
 
 # JWT 설정
 SECRET_KEY = "appleisgreat1234"  # 시크릿 키 설정
