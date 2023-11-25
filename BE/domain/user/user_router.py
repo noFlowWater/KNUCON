@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Form
 from fastapi.security import OAuth2PasswordBearer
 from typing import Optional
 
@@ -16,7 +16,8 @@ def register_user(user_register : UserRegister):
     return user_crud.register_user(user_register)
 
 @router.post("/login") # POST /users/login 
-def login_user(user_login: UserLogin):
+def login_user(login_id: str = Form(...), login_password: str = Form(...)):
+    user_login = UserLogin(login_id=login_id, login_password=login_password)
     return user_crud.login_user(user_login)
 
 @router.post("/logout/{user_id}")
