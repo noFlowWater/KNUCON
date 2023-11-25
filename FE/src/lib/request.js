@@ -1,4 +1,6 @@
-const request = async (operation, url, params, headers, username, password, credentials = 'include') => {
+import qs from "qs"
+
+const request = async (operation, url, params, headers) => {
   let method = operation.toUpperCase();
   let _url = 'http://localhost:8000' + url;
 
@@ -6,13 +8,10 @@ const request = async (operation, url, params, headers, username, password, cred
     _url += new URLSearchParams(params).toString();
   }
 
-  const base64Credentials = btoa(username + ":" + password);
-
   let options = {
     method: method,
     headers: {
       "Content-Type": 'application/json',
-      "Authorization": `Basic ${base64Credentials}`,
       ...headers
     },
     credentials: 'include',
@@ -21,16 +20,38 @@ const request = async (operation, url, params, headers, username, password, cred
   if (method !== 'GET') {
     options['body'] = JSON.stringify(params);
   }
-  const response = await fetch(_url, options);
-  if (response.status === 204 || response.status === 205) {
-    // No content or Reset content, no need to parse JSON
-    return null;
-  } else if (response.status >= 200 && response.status < 300) {
-    return await response.json();
-  } else {
-    const errorData = await response.json();
-    throw new Error(JSON.stringify(errorData));
+
+  if (operation === 'login') {
+    options.method = 'POST';
+    options.headers["Content-Type"] = 'application/x-www-form-urlencoded';
+    options.body = qs.stringify(params);
   }
+
+  const response = await fetch(_url, options);
+    if (response.status === 204 || response.status === 205) {
+        // No content or Reset content, no need to parse JSON
+        console.log('Response status:', response.status, 'No content or Reset content');
+        return null;
+    } else if (response.status >= 200 && response.status < 300) {
+        console.log('Response status:', response.status, 'Success');
+
+        // 응답 내용을 JSON으로 파싱하기 전에 응답의 일부 정보를 로깅
+        console.log('Response headers:', response.headers);
+        console.log('Response URL:', response.url);
+        console.log('Response type:', response.type);
+
+        const responseData = await response.json();
+
+        // 응답 데이터 로깅
+        console.log('Response data:', responseData);
+        return responseData;
+    } else {
+        console.log('Response status:', response.status, 'Error');
+        const errorData = await response.json();
+        console.log('Error data:', errorData);
+        throw new Error(JSON.stringify(errorData));
+    }
+
 };
 
 export default request;

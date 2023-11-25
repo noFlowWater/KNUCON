@@ -52,13 +52,14 @@ def login_user(user_login: UserLogin, conn) -> str:
             print("\n <<< Login successful \n")
 
             # JWT 토큰 생성
-            expiration = datetime.utcnow() + timedelta(hours=24)  # 예: 토큰 만료 시간을 1시간으로 설정
+            expiration = datetime.utcnow() + timedelta(hours=24)  # 예: 토큰 만료 시간을 24시간으로 설정
             token_data = {
                 "sub": user_id,  # 'sub'에 사용자 ID 포함
                 "exp": expiration
             }
             token = jwt.encode(token_data, SECRET_KEY, algorithm=ALGORITHM)
-
+            print(token)
+            
             return {"user_name": user_name, "token": token}  # 사용자 이름과 토큰 반환
 
         else:

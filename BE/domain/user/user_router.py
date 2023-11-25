@@ -16,9 +16,10 @@ def register_user(user_register : UserRegister):
     return user_crud.register_user(user_register)
 
 @router.post("/login") # POST /users/login 
-def login_user(login_id: str = Form(...), login_password: str = Form(...)):
+async def login_user_endpoint(login_id: str = Form(...), login_password: str = Form(...),  conn=Depends(get_db_connection)):
     user_login = UserLogin(login_id=login_id, login_password=login_password)
-    return user_crud.login_user(user_login)
+    # 데이터베이스 연결 객체를 함수에 전달
+    return user_crud.login_user(user_login, conn)
 
 @router.post("/logout/{user_id}")
 def logout_user(user_id: str):
