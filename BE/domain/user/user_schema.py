@@ -1,5 +1,5 @@
 from pydantic import BaseModel, validator, constr 
-#constr:공백 자동제거
+from datetime import datetime
 
 class UserRegister(BaseModel):
     name : constr(strip_whitespace=True)

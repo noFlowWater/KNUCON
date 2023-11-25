@@ -24,7 +24,6 @@ except oracledb.Error as e:
 
 USER_ID = "dacsternary"
 USER_PW = "pass"
-CONN_STR = "localhost:1521/xe"
 
 def get_db_connection(): # get db connection, will be used in DI
     try:

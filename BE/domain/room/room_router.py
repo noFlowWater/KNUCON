@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordBearer
 
 from domain.room.room_schema import RoomRegister
-from domain.user.user_router import get_current_user_id
+from util import get_current_user_id
 import domain.room.room_crud as room_crud
 
 router = APIRouter(prefix = '/rooms')

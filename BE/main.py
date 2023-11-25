@@ -7,6 +7,7 @@ import domain.user.user_router as user_router
 import domain.room.room_router as room_router
 import domain.post.post_router as post_router
 import domain.report.report_router as report_router
+import domain.wishes.wishes_router as wishes_router
 
 app = FastAPI()
 
@@ -32,3 +33,4 @@ app.include_router(user_router.router)
 app.include_router(room_router.router)
 app.include_router(post_router.router)
 app.include_router(report_router.router)
+app.include_router(wishes_router.router)
