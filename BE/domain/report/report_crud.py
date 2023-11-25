@@ -7,7 +7,7 @@ def file_report(file_report: ReportInput, conn, reporter_uid):
     report_id = generate_unique_id(conn, 'T', 'REPORT', 'report_id')
     sql = "INSERT INTO report (report_id, reason, reported_uid, reporter_uid) VALUES \
         (:1, :2, :3, :4)"
-    data = [(report_id, ReportInput.reason, ReportInput.reported_uid, reporter_uid)]
+    data = [(report_id, file_report.reason, file_report.reported_uid, reporter_uid)]
 
     try:
         cursor.executemany(sql, data)
@@ -19,7 +19,7 @@ def file_report(file_report: ReportInput, conn, reporter_uid):
     conn.close()
     return result
 
-def list_report(user_id, conn) -> list[str]:
+def list_report(user_id, conn):
     report_list = []
     cursor = conn.cursor()
     sql = "SELECT * FROM report"
