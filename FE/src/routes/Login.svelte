@@ -1,15 +1,30 @@
 <script>
+  import { access_token, username, is_login } from "../lib/store"
+  import request from "../lib/request";
   import { push } from 'svelte-spa-router';
-  let username = '';
+
+  let error = {detail:[]}
+  let login_id = '';
   let password = '';
 
-  function handleLogin() {
-    // 로그인 로직
-    console.log("Logging in with", username, password);
-    // 여기에 서버 인증 로직 추가 가능 (예: API 요청)
-
-    // 로그인 성공 가정하에 홈 페이지로 이동
-    push('/home');
+  function login(event) {
+      event.preventDefault()
+      let url = "/users/login"
+      let params = {
+          login_id: login_id,
+          login_password: password,
+      }
+      request('login', url, params, 
+          (json) => {
+              $access_token = json.token
+              $username = json.user_name
+              $is_login = true
+              push("/")
+          },
+          (json_error) => {
+              error = json_error
+          }
+      )
   }
 
   function goToRegister() {
@@ -79,9 +94,9 @@
 </style>
 
 <div class="login-container">
-  <input id="login-id" class="input-field" type="text" bind:value={username} placeholder="ID" />
+  <input id="login-id" class="input-field" type="text" bind:value={login_id} placeholder="ID" />
   <input id="login-pw" class="input-field" type="password" bind:value={password} placeholder="PW" />
 
   <button id="button-register" class="button" on:click={goToRegister}>Register</button>
-  <button id="button-login" class="button" on:click={handleLogin}>LOGIN</button>
+  <button type="submit" class="btn btn-primary" on:click="{login}">LOGIN</button>
 </div>
