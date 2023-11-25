@@ -1,64 +1,26 @@
-import os
-import platform
-import oracledb
-import random  # Import random module
 from domain.room.room_schema import RoomRegister, RoomInfo, MyRoomList
 from datetime import datetime
+from util import generate_unique_id
+from jose import jwt
 
-# Handle env related with OS
-os_name = platform.system()
-if os_name == "Windows":
-    os.chdir('C:\\oracle2\\instantclient_19_21')
-    lib_dir = 'C:\\oracle2\\instantclient_19_21'
-    CONN_STR = "localhost:1521/orcl2"
-elif os_name == "Darwin":
-    os.chdir('/opt/oracle/instantclient_19_8')
-    lib_dir = '/opt/oracle/instantclient_19_8'
-    CONN_STR = "localhost:1521/xe"
-
-os.putenv('NLS_LANG','AMERICAN_AMERICA.UTF8')
-USER_ID = "dacsternary"
-USER_PW = "pass"
-
-try:
-    oracledb.init_oracle_client(lib_dir=lib_dir)
-except Exception as err:
-    print(err)
-
-try:
-    conn = oracledb.connect(user=USER_ID, password=USER_PW, dsn=CONN_STR)
-except:
-    print('Cannot get a connection.')
-
-# 데이터베이스 연결 및 커서 생성
-cursor = conn.cursor()
-
-# 새로운 함수: 고유한 방 ID 생성
-def generate_unique_room_id():
-    while True:
-        room_id = 'R' + ''.join([str(random.randint(0, 9)) for _ in range(7)])
-        cursor.execute("SELECT COUNT(*) FROM \"ROOM\" WHERE room_id = :1", (room_id,))
-        (room_id_count,) = cursor.fetchone()
-        
-        if room_id_count == 0:
-            return room_id
-
-# New function to check for existing rooms with room_status = 0
-def check_existing_room(user_id: str) -> bool:
+def check_existing_room(user_id: str, conn) -> bool:
+    cursor = conn.cursor()
     cursor.execute("SELECT COUNT(*) FROM ROOM WHERE \"UID\" = :1 AND ROOM_STATUS = 0", (user_id,))
     (count,) = cursor.fetchone()
     return count > 0
 
 # 새로운 함수: 방 등록
-def register_room(user_id: str, room_register : RoomRegister) -> str:
+def register_room(user_id: str, room_register : RoomRegister, conn) -> str:
+    cursor = conn.cursor()
+
     try:
 
         # Check if the user already has a room with room_status = 0
-        if check_existing_room(user_id):
+        if check_existing_room(user_id, conn):
             return "User already has a room"
         
         # 고유한 room_id 생성
-        room_id = generate_unique_room_id()
+        room_id = generate_unique_id(conn, 'R', 'ROOM', 'room_id')
 
         # 현재 시간을 room_date로 설정
         room_date = datetime.now()
@@ -85,8 +47,8 @@ def register_room(user_id: str, room_register : RoomRegister) -> str:
             conn.close()
 
 
-def get_my_rooms(user_id: str) -> MyRoomList:
-
+def get_my_rooms(user_id: str, conn) -> MyRoomList:
+    cursor = conn.cursor()
     try:
         cursor.execute("SELECT * FROM ROOM WHERE \"UID\" = :1", (user_id,))
         rows = cursor.fetchall()
