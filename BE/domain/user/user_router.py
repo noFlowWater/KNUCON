@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Form
 from fastapi.security import OAuth2PasswordBearer
 from typing import Optional
 
-from domain.user.user_schema import UserRegister, UserLogin, UserQuit
+from domain.user.user_schema import UserRegister, UserLogin, UserQuit, LoginIdUniqueCheck
 import domain.user.user_crud as user_crud
 from util import get_current_user_id
 from db import get_db_connection
@@ -11,9 +11,13 @@ from db import get_db_connection
 router = APIRouter(prefix='/users')
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-@router.post("") # POST /users
-def register_user(user_register : UserRegister):
-    return user_crud.register_user(user_register)
+@router.post("/check")
+def check_login_id_endpoint(login_id :LoginIdUniqueCheck,  conn=Depends(get_db_connection)):
+    return user_crud.check_login_id(login_id,conn)
+
+@router.post("/register") # POST /users
+def register_user(user_register : UserRegister,  conn=Depends(get_db_connection)):
+    return user_crud.register_user(user_register, conn)
 
 @router.post("/login") # POST /users/login 
 def login_user(login_id: str = Form(...), login_password: str = Form(...),  conn=Depends(get_db_connection)):
