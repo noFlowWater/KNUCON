@@ -4,11 +4,12 @@ from domain.post.post_schema import PostInput
 from util import generate_unique_id
 
 
-def create_post(create_post: PostInput, conn, user_id) -> str:
+def create_post(create_post: PostInput, user_id, conn) -> str:
     cursor = conn.cursor()
     data = []
     post_id = generate_unique_id(conn, 'P', 'POST', 'post_id') # create unique post_id 
     post_date = datetime.now()
+    print(post_id)
     sql = "INSERT INTO post (post_id, rid, \"UID\", post_status, post_date, post_title, post_content) VALUES \
         (:1, :2, :3, :4, :5, :6, :7)"
     data = [(post_id, create_post.room_id, user_id, create_post.post_status, post_date,\
@@ -23,12 +24,10 @@ def create_post(create_post: PostInput, conn, user_id) -> str:
     conn.close()
     return result
 
-def list_post(user_id, conn) -> list[str]:
+def list_post(conn) -> list[str]:
     post_list = []
     cursor = conn.cursor()
     sql = "SELECT * FROM post"
-    if user_id is not None: # get post with user_id
-        sql = f"{sql} WHERE post.\"UID\" = '{user_id}'" # must use "" for UID and '' for user_id
     cursor.execute(sql)
 
     # post format:
