@@ -17,7 +17,7 @@
 
       try {
           const response = await request('login', url, params);
-          if (response) {
+            if (response) {
               $access_token = response.token;
               $username = response.user_name;
               $is_login = true;
@@ -28,7 +28,7 @@
               console.log('Is Logged In:', $is_login);
 
               push('/home');
-          }
+            }
       } catch (err) {
           console.error('Login Error:', err);
           error = JSON.parse(err.message);

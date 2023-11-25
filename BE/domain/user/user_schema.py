@@ -1,6 +1,15 @@
 from pydantic import BaseModel, validator, constr 
 from datetime import datetime
 
+
+class LoginIdUniqueCheck(BaseModel):
+    login_id : constr(strip_whitespace=True)
+
+    @validator('login_id')
+    def not_null(cls, v):
+        if not v:
+            raise ValueError('Empty values are not allowed.')
+        return v
 class UserRegister(BaseModel):
     name : constr(strip_whitespace=True)
     login_id : constr(strip_whitespace=True)
