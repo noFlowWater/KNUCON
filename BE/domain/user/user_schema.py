@@ -14,8 +14,8 @@ class UserRegister(BaseModel):
         return v
     
 class UserLogin(BaseModel):
-    login_id: constr(strip_whitespace=True)
-    login_password: constr(strip_whitespace=True)
+    login_id: str
+    login_password: str
 
     # constr(strip_whitespace=True)
     @validator('login_id', 'login_password')
