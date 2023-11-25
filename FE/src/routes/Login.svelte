@@ -7,24 +7,32 @@
   let login_id = '';
   let password = '';
 
-  function login(event) {
-      event.preventDefault()
-      let url = "/users/login"
+  async function login(event) {
+      event.preventDefault();
+      let url = "/users/login";
       let params = {
           login_id: login_id,
           login_password: password,
-      }
-      request('login', url, params, 
-          (json) => {
-              $access_token = json.token
-              $username = json.user_name
-              $is_login = true
-              push("/")
-          },
-          (json_error) => {
-              error = json_error
+      };
+
+      try {
+          const response = await request('login', url, params);
+          if (response) {
+              $access_token = response.token;
+              $username = response.user_name;
+              $is_login = true;
+
+              // 변수들의 값 디버깅
+              console.log('Access Token:', $access_token);
+              console.log('Username:', $username);
+              console.log('Is Logged In:', $is_login);
+
+              push('/home');
           }
-      )
+      } catch (err) {
+          console.error('Login Error:', err);
+          error = JSON.parse(err.message);
+      }
   }
 
   function goToRegister() {
@@ -94,8 +102,8 @@
 </style>
 
 <div class="login-container">
-  <input id="login-id" class="input-field" type="text" bind:value={login_id} placeholder="ID" />
-  <input id="login-pw" class="input-field" type="password" bind:value={password} placeholder="PW" />
+  <input id="login-id" class="form-control" type="text" bind:value={login_id} placeholder="ID" />
+  <input id="login_password" class="form-control" type="password" bind:value={password} placeholder="PW" />
 
   <button id="button-register" class="button" on:click={goToRegister}>Register</button>
   <button type="submit" class="btn btn-primary" on:click="{login}">LOGIN</button>
