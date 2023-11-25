@@ -1,15 +1,9 @@
-from fastapi import APIRouter, Header
-from starlette import status
-from domain.room.room_schema import RoomRegister, MyRoomList
-from domain.user.user_router import get_current_user_id
-
-from fastapi import Depends, HTTPException, status, FastAPI
+from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordBearer
-from starlette.requests import Request
-from jose import jwt, JWTError
 
+from domain.room.room_schema import RoomRegister
+from util import get_current_user_id
 import domain.room.room_crud as room_crud
-import domain.user.user_crud as user_crud
 
 router = APIRouter(prefix = '/rooms')
 
