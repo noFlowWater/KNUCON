@@ -7,10 +7,12 @@
   let newId = '';
   let newPassword = '';
   let confirmPassword = '';
-
   let id_check_is_valid = null;
+  let passwordsDoNotMatch = false; 
+  let isPhoneNumberValid = false;
 
   function checkPasswordsMatch() {
+    passwordsDoNotMatch = newPassword !== confirmPassword;
     if (newPassword === confirmPassword) {
         console.log("Passwords match.");
         return true;
@@ -18,6 +20,10 @@
         console.log("Passwords do not match.");
         return false;
     }
+  }
+  function validatePhoneNumber() {
+    const phoneRegex = /^010\d{8}$/;
+    isPhoneNumberValid = phoneRegex.test(phoneNumber);
   }
 
   async function check_login_id(event) {
@@ -47,6 +53,12 @@
 
   async function handleRegistration(event) {
       event.preventDefault();
+      validatePhoneNumber();
+      // Check for empty values in input fields
+      if (!name || !phoneNumber || !newId || !newPassword || !confirmPassword) {
+        console.error('Empty value not allowed');
+        return;
+      }
       if (!id_check_is_valid) {
         alert("Please check ID uniqueness before registering.");
         return;
@@ -121,6 +133,14 @@
     left: 505px;
     top: 406px;
   }
+  /* Style for valid/invalid input */
+  .valid {
+    background-color: rgb(0, 220, 0);
+  }
+
+  .invalid {
+    background-color: rgb(255, 111, 111);
+  }
 
   #new-password {
     left: 505px;
@@ -160,11 +180,24 @@
 </style>
 
 <div class="register-container">
-  <input id="name" class="input-field" type="text" bind:value={name} placeholder="Name" />
-  <input id="phone-number" class="input-field" type="text" bind:value={phoneNumber} placeholder="Phone Number" />
-  <input id="new-id" class="input-field" type="text" bind:value={newId} placeholder="Your New ID" />
+  <input id="name" class="input-field" type="text" bind:value={name} placeholder="Your Name" />
+  <input 
+    id="phone-number" 
+    class="input-field {phoneNumber.length > 0 && (isPhoneNumberValid ? 'valid' : 'invalid')}" 
+    type="text" 
+    bind:value={phoneNumber} 
+    on:input={validatePhoneNumber} 
+    placeholder="ex) 01012345678 (no '-')" />
+  <input id="new-id" class="input-field {id_check_is_valid === true ? 'valid' : id_check_is_valid === false ? 'invalid' : ''}" 
+         type="text" bind:value={newId} placeholder="Your New ID" />
   <input id="new-password" class="input-field" type="password" bind:value={newPassword} on:input={checkPasswordsMatch} placeholder="Your New PW" />
-  <input id="confirm-password" class="input-field" type="password" bind:value={confirmPassword} on:input={checkPasswordsMatch} placeholder="PW check" />
+  <input 
+    id="confirm-password" 
+    class="input-field {confirmPassword.length > 0 && (passwordsDoNotMatch ? 'invalid' : 'valid')}" 
+    type="password" 
+    bind:value={confirmPassword} 
+    on:input={checkPasswordsMatch} 
+    placeholder="PW check" />
   <button id="button-id-check" class="button" on:click={check_login_id}>Check</button>
   <button id="button-register-complete" class="button" on:click={handleRegistration}>Register</button>
 </div>

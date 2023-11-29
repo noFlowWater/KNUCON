@@ -1,6 +1,21 @@
 <script>
   import { link } from 'svelte-spa-router';
   import { access_token, username, is_login } from "../lib/store"
+  import { getNotificationsContext } from 'svelte-notifications';
+   
+  const { addNotification } = getNotificationsContext();
+
+  function logout() {
+    $access_token = '';
+    $username = '';
+    $is_login = false;
+    addNotification({
+      text: '로그아웃 되었습니다.',
+      position: 'bottom-center',
+      type: 'success',
+      removeAfter: 4000
+    });
+  }
 </script>
 
 <nav class="navbar fixed-top navbar-expand-sm navbar-light">
@@ -21,11 +36,7 @@
       </li>
       {#if $is_login }
           <li class="nav-item">
-              <a use:link href="/" class="nav-link" on:click={() => {
-                  $access_token = ''
-                  $username = ''
-                  $is_login = false
-              }}>로그아웃 ({$username})</a>
+              <a use:link href="/" class="nav-link" on:click={logout}>로그아웃 ({$username})</a>
           </li>
       {:else}
           <li class="nav-item">
