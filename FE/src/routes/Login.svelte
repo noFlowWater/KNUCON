@@ -37,7 +37,6 @@
     document.body.style.fontFamily = '';
   });
 
-  let error = {detail:[]}
   let login_id = '';
   let password = '';
 
@@ -224,7 +223,6 @@
     <div class="button-container">
       <button class="register-btn" type="button" on:click|preventDefault={goToRegister}>Register</button>
       <input type="submit" value="Login" class="submit-btn" on:click|preventDefault={login}>
-      
     </div>
   </form>
 </div>
