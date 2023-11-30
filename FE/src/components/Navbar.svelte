@@ -1,9 +1,11 @@
 <script>
-  import { link } from 'svelte-spa-router';
+  import { link, location } from 'svelte-spa-router';
   import { access_token, username, is_login } from "../lib/store"
   import { getNotificationsContext } from 'svelte-notifications';
    
   const { addNotification } = getNotificationsContext();
+
+  let isVisible = true;
 
   function logout() {
     $access_token = '';
@@ -16,8 +18,10 @@
       removeAfter: 4000
     });
   }
+  $: isVisible = $location !== '/' && $location !== '/register';
 </script>
 
+{#if isVisible}
 <nav class="navbar fixed-top navbar-expand-sm navbar-light">
   <a use:link href="/home" class="navbar-brand">KNUCON</a>
   <div class="collapse navbar-collapse">
@@ -49,6 +53,7 @@
     </ul>
   </div>
 </nav>
+{/if}
 
 <style>
   .navbar {

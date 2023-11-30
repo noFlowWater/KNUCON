@@ -1,9 +1,11 @@
 <script>
-  import { access_token, username, is_login } from "../lib/store"
+  import { access_token, username, is_login, redirectedToLogin } from "../lib/store"
   import request from "../lib/request";
   import { push } from 'svelte-spa-router';
   import { getNotificationsContext } from 'svelte-notifications';
   import { onMount, onDestroy } from 'svelte';
+
+  const { addNotification } = getNotificationsContext();
 
   // 페이지가 로드될 때 실행되는 함수
   onMount(() => {
@@ -11,6 +13,20 @@
     document.body.style.background = 'url(/background.png) no-repeat center';
     document.body.style.backgroundSize = 'cover';
     document.body.style.fontFamily = 'sans-serif';
+    const unsubscribe = redirectedToLogin.subscribe(value => {
+      if (value) {
+        addNotification({
+          text: '로그인이 필요한 페이지입니다. 로그인 해주세요.',
+          position: 'bottom-center',
+          type: 'warning',
+          removeAfter: 4000
+        });
+        redirectedToLogin.set(false); // 상태 초기화
+      }
+    });
+    return () => {
+      unsubscribe(); // 구독 해제
+    };
   });
 
   // 페이지가 언마운트될 때 실행되는 함수
@@ -20,8 +36,6 @@
     document.body.style.backgroundSize = '';
     document.body.style.fontFamily = '';
   });
-   
-  const { addNotification } = getNotificationsContext();
 
   let error = {detail:[]}
   let login_id = '';
@@ -208,8 +222,9 @@
       <label for="loginPassword">Password</label>
     </div>
     <div class="button-container">
-      <button class="register-btn" on:click|preventDefault={goToRegister}>Register</button>
+      <button class="register-btn" type="button" on:click|preventDefault={goToRegister}>Register</button>
       <input type="submit" value="Login" class="submit-btn" on:click|preventDefault={login}>
+      
     </div>
   </form>
 </div>

@@ -6,20 +6,51 @@
   import Login from './routes/Login.svelte';
   import Register from './routes/Register.svelte';
   import Post from './routes/Post.svelte';
+  import Mypage from './routes/MyPage/MyPage.svelte';
+  import MyRooms from './routes/MyPage/MyRooms.svelte';
+  import MyPosts from './routes/MyPage/MyPosts.svelte';
+  import WishList from './routes/MyPage/WishList.svelte';
+  import { checkLogin, checkPublicRouteAccess } from './lib/routingGuard';
 
-  const routes = {
+  // 로그인이 필요하지 않은 기본 경로
+  const publicRoutes = {
     '/': Login,
     '/register': Register,
-    '/home': Home,
-    '/post': Post
   };
-  let item = null;
+
+  // 로그인이 필요한 경로
+  const privateRoutes = {
+    '/home': Home,
+    '/post': Post,
+    '/mypage': Mypage,
+    '/mypage/rooms': MyRooms,
+    '/mypage/posts': MyPosts,
+    '/mypage/wishlist': WishList,
+  };
+
+  const routes = {
+    ...publicRoutes,
+    ...privateRoutes
+  };
+
+  // 현재 경로가 공개 경로인지 확인하는 함수
+  function isPublicRoute(path) {
+    return Object.keys(publicRoutes).includes(path);
+  }
+
+  // 현재 경로가 비공개 경로인지 확인하는 함수
+  function isPrivateRoute(path) {
+    return Object.keys(privateRoutes).includes(path);
+  }
+
+  // 라우트 변경 시 로그인 및 경로 접근 확인
+  $: location.subscribe(($location) => {
+    checkPublicRouteAccess($location, isPublicRoute);
+    checkLogin($location, isPrivateRoute);
+  });
 </script>
 
 <Notifications>
-  <!-- 현재 경로를 추적하고, 네비게이션 바를 조건부로 렌더링합니다. -->
-  {#if $location !== '/' && $location !== '/register'}
-    <Navbar />
-  {/if}
+  <Navbar />
   <Router {routes} />
 </Notifications>
