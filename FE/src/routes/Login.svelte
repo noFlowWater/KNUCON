@@ -214,7 +214,7 @@
     <h2>Login</h2>
     <div class="input-group">
       <input type="text" name="loginUser" id="loginUser" autocomplete="off" required bind:value={login_id}>
-      <label for="loginUser">User Name</label>
+      <label for="loginUser">Login ID</label>
     </div>
     <div class="input-group">
       <input type="password" name="loginPassword" id="loginPassword" required bind:value={password}>
