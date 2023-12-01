@@ -6,6 +6,7 @@
   import Register from './routes/Register.svelte';
   import Post from './routes/Post.svelte';
   import RoomRegister from './routes/RoomRegister.svelte';
+  import PostLike from './routes/PostLike.svelte';
 
   const routes = {
     '/': Login,

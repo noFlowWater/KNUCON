@@ -32,7 +32,6 @@
         }
     };
 
-    // 매핑을 정의합니다.
     const roomTypeMapping = { 'oneroom': 1, 'tworoom': 2, 'threeroom_plus': 3 };
     const floorMapping = { 'first': 1, 'second': 2, 'third': 3, 'fourth': 4, 'etc': 5 };
     const gateMapping = { 'gate1': 1, 'gate2': 2, 'gate3': 3, 'gate4': 4, 'gate5': 5 };
@@ -42,16 +41,42 @@
     let hasExistingRoom = false;
 
     onMount(async () => {
-        // 기존 방 존재 여부 확인 로직
+        const headers = {
+            'Authorization': `Bearer ${$access_token}`
+        };
+        try {
+            const response = await request('get', '/rooms/check-room', {}, headers);
+            if (response.exists) {
+                alert("이미 등록된 방이 있습니다.");
+                push('/home'); // 사용자를 홈 페이지로 리디렉션
+            }
+        } catch (err) {
+            console.error('Error checking existing room:', err);
+            // 필요한 경우 사용자에게 오류 메시지 표시
+        }
     });
+
 
     let directionSelections = 0;
     const maxDirectionSelections = 2;
 
     function handleDirectionChange(event) {
-        // 방향 변경 처리 로직
+        const currentDirection = event.target.id; // 현재 변경된 체크박스의 ID
+        roomDetails.direction[currentDirection] = event.target.checked; // 현재 방향의 선택 상태 갱신
+
+        // 현재 체크된 방향의 개수 계산
+        directionSelections = Object.values(roomDetails.direction).filter(Boolean).length;
+
+        if (directionSelections > maxDirectionSelections) {
+            // 사용자에게 경고 메시지 표시
+            alert('최대 두 개의 방향만 선택할 수 있습니다.');
+
+            // 가장 최근의 선택 취소
+            roomDetails.direction[currentDirection] = false;
+            event.target.checked = false;
+        }
     }
-    
+
     let error = { detail: [] };
 
     async function registerRoom(event) {
