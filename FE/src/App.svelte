@@ -5,12 +5,14 @@
   import Login from './routes/Login.svelte';
   import Register from './routes/Register.svelte';
   import Post from './routes/Post.svelte';
+  import RoomRegister from './routes/RoomRegister.svelte';
 
   const routes = {
     '/': Login,
     '/register': Register,
     '/home': Home,
-    '/post': Post
+    '/post': Post,
+    '/room-register': RoomRegister
   };
 </script>
 
