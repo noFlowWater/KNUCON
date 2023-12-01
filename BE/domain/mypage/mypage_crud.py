@@ -78,19 +78,22 @@ def get_user_rooms(user_id: str, conn) -> str:
 def get_user_posts(user_id: str, conn) -> str:
     cursor = conn.cursor()
     try:
-        sql = "SELECT * FROM POST WHERE \"UID\" = :1"
+        sql = """
+        SELECT p.*, (SELECT COUNT(W.PID) FROM WISHES W WHERE W.PID = P.POST_ID) AS WISH_COUNT
+        FROM POST p WHERE p."UID" = :1"""
         cursor.execute(sql, [user_id])
 
         rows = cursor.fetchall()
         if rows:
-            posts = [{"post_id": row[0], 
-                       "room_id": row[1],
-                       "uid": row[2],
-                       "post_status": row[3], 
-                       "post_date": row[4].isoformat() if row[2] else None,
-                       "post_view_count": row[5], 
-                       "post_title": row[6], 
-                       "post_content": row[7], 
+            posts = [{"POST_ID": row[0], 
+                       "RID": row[1],
+                       "UID": row[2],
+                       "POST_STATUS": row[3], 
+                       "POST_DATE": row[4].isoformat() if row[2] else None,
+                       "POST_VIEW_COUNT": row[5], 
+                       "POST_TITLE": row[6], 
+                       "POST_CONTENT": row[7], 
+                       "WISH_COUNT": row[8]
                       } for row in rows]
             
             return json.dumps(posts)
@@ -106,7 +109,7 @@ def get_user_wishes(user_id: str, conn) -> str:
     cursor = conn.cursor()
     try:
         sql = """
-        SELECT p.*
+        SELECT p.*, (SELECT COUNT(W.PID) FROM WISHES W WHERE W.PID = P.POST_ID) AS WISH_COUNT
         FROM POST p
         JOIN WISHES w ON p.POST_ID = w.PID
         WHERE w.\"UID\" = :1
@@ -115,14 +118,15 @@ def get_user_wishes(user_id: str, conn) -> str:
 
         rows = cursor.fetchall()
         if rows:
-            wishes = [{"post_id": row[0], 
-                       "room_id": row[1],
-                       "uid": row[2],
-                       "post_status": row[3], 
-                       "post_date": row[4].isoformat() if row[2] else None,
-                       "post_view_count": row[5], 
-                       "post_title": row[6], 
-                       "post_content": row[7], 
+            wishes = [{"POST_ID": row[0], 
+                        "RID": row[1],
+                        "UID": row[2],
+                        "POST_STATUS": row[3], 
+                        "POST_DATE": row[4].isoformat() if row[2] else None,
+                        "POST_VIEW_COUNT": row[5], 
+                        "POST_TITLE": row[6], 
+                        "POST_CONTENT": row[7], 
+                        "WISH_COUNT": row[8]
                       } for row in rows]
             return json.dumps(wishes)
         else:

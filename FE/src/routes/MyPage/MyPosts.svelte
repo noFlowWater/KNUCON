@@ -1,6 +1,7 @@
 <script>
     import { onMount } from 'svelte';
     import request from '../../lib/request'; 
+    import { push } from 'svelte-spa-router';
     import { access_token, is_login } from '../../lib/store'; 
 
     let posts = [];
@@ -14,17 +15,22 @@
                 const response = await request('GET', '/mypage/posts', {}, {
                     'Authorization': `Bearer ${$access_token}`
                 });
-                if (response) {
-                    posts = JSON.parse(response);
-                }
-                isLoading = false;
+                if (response) {posts = JSON.parse(response);}
             } catch (error) {
                 console.error('Error fetching posts:', error);
-                isLoading = false;
                 isError = true;
+            } finally {
+                isLoading = false;
             }
         }
     });
+
+    async function navigateToPostDetail(post_id){
+        console.log("post_id: "+post_id)
+        // postId를 이용하여 상세 페이지로 네비게이션
+        push(`/posts/${post_id}`);
+    }
+    
 </script>
 
 <div class="page-container">
@@ -36,7 +42,11 @@
     {:else if posts.length > 0}
     <ul>
         {#each posts as post}
-        <li>{post.post_title} / {post.post_date} / Status : {post.post_status}</li>
+            <li>
+                <button on:click={() => navigateToPostDetail(post.POST_ID)}>
+                    {post.POST_TITLE} / {post.POST_DATE} / Status : {post.POST_STATUS} / WishCount : {post.WISH_COUNT}
+                </button>
+            </li>
         {/each}
     </ul>
     {:else}
@@ -45,5 +55,17 @@
 </div>
 
 <style>
-  /* 여기에 스타일링 추가 */
+    button {
+        background: none;
+        border: none;
+        padding: 0;
+        margin: 0;
+        text-align: left;
+        color: blue;
+        text-decoration: underline;
+        cursor: pointer;
+    }
+    button:hover {
+        text-decoration: none;
+    }
 </style>

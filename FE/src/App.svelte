@@ -10,7 +10,8 @@
   import MyRooms from './routes/MyPage/MyRooms.svelte';
   import MyPosts from './routes/MyPage/MyPosts.svelte';
   import WishList from './routes/MyPage/WishList.svelte';
-  import { checkLogin, checkPublicRouteAccess } from './lib/routingGuard';
+  import PostDetail from './routes/PostDetail.svelte';
+  import { checkRouteAccess } from './lib/routingGuard';
 
   // 로그인이 필요하지 않은 기본 경로
   const publicRoutes = {
@@ -26,6 +27,7 @@
     '/mypage/rooms': MyRooms,
     '/mypage/posts': MyPosts,
     '/mypage/wishlist': WishList,
+    '/posts/:postId': PostDetail,
   };
 
   const routes = {
@@ -33,20 +35,23 @@
     ...privateRoutes
   };
 
-  // 현재 경로가 공개 경로인지 확인하는 함수
-  function isPublicRoute(path) {
-    return Object.keys(publicRoutes).includes(path);
+  // 현재 경로가 주어진 라우트 타입에 속하는지 확인하는 함수
+  function private_access_check(path) {
+    for (const route in privateRoutes) {
+      if (route.includes(':')) { // 동적 라우트인 경우
+        const baseRoute = route.split('/:')[0];
+        if (path.startsWith(baseRoute)) {
+          return true; 
+        }
+      } else if (route === path) { // 정적 라우트인 경우
+        return true;
+      }
+    }
+    return false; 
   }
-
-  // 현재 경로가 비공개 경로인지 확인하는 함수
-  function isPrivateRoute(path) {
-    return Object.keys(privateRoutes).includes(path);
-  }
-
   // 라우트 변경 시 로그인 및 경로 접근 확인
   $: location.subscribe(($location) => {
-    checkPublicRouteAccess($location, isPublicRoute);
-    checkLogin($location, isPrivateRoute);
+    checkRouteAccess($location, private_access_check);
   });
 </script>
 

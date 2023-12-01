@@ -1,6 +1,7 @@
 <script>
     import { onMount } from 'svelte';
     import request from '../../lib/request';
+    import { push } from 'svelte-spa-router';
     import { access_token, is_login } from '../../lib/store';
 
     let wishes = [];
@@ -25,6 +26,11 @@
             }
         }
     });
+    async function navigateToPostDetail(post_id){
+        console.log("post_id: "+post_id)
+        // postId를 이용하여 상세 페이지로 네비게이션
+        push(`/posts/${post_id}`);
+    }
 </script>
 
 <div class="page-container">
@@ -37,7 +43,11 @@
     {:else if wishes.length > 0}
     <ul>
         {#each wishes as wish}
-        <li>{wish.post_title} / {wish.post_date} / Status : {wish.post_status}</li>
+        <li>
+            <button on:click={() => navigateToPostDetail(wish.POST_ID)}>
+                {wish.POST_TITLE} / {wish.POST_DATE} / Status : {wish.POST_STATUS} / WishCount : {wish.WISH_COUNT}
+            </button>
+        </li>
         {/each}
     </ul>
     {:else}
@@ -46,5 +56,17 @@
 </div>
 
 <style>
-  /* 여기에 스타일링 추가 */
+  button {
+        background: none;
+        border: none;
+        padding: 0;
+        margin: 0;
+        text-align: left;
+        color: blue;
+        text-decoration: underline;
+        cursor: pointer;
+    }
+    button:hover {
+        text-decoration: none;
+    }
 </style>
