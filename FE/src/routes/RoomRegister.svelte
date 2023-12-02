@@ -2,6 +2,7 @@
     import { onMount } from 'svelte';
     import { push } from 'svelte-spa-router';
     import request from "../lib/request";
+    import { access_token } from "../lib/store"; // access_token import
 
     let roomDetails = {
         room_nickname: '',
@@ -31,61 +32,105 @@
         }
     };
 
-    let hasExistingRoom = false; // This will hold the status of existing room check
+    const roomTypeMapping = { 'oneroom': 1, 'tworoom': 2, 'threeroom_plus': 3 };
+    const floorMapping = { 'first': 1, 'second': 2, 'third': 3, 'fourth': 4, 'etc': 5 };
+    const gateMapping = { 'gate1': 1, 'gate2': 2, 'gate3': 3, 'gate4': 4, 'gate5': 5 };
+    const contractMapping = { 'monthly': 1, 'jeonse': 2, 'etc': 3 };
+    const directionValues = { 'east': 1, 'west': 2, 'south': 4, 'north': 8 };
 
-    // This function will be called when the component is first created
+    let hasExistingRoom = false;
+
     onMount(async () => {
+        const headers = {
+            'Authorization': `Bearer ${$access_token}`
+        };
         try {
-            const user_id = "user-id-from-context-or-storage"; // Get the current user's ID
-            const response = await request('get', '/rooms/check', { params: { user_id } });
-            hasExistingRoom = response.data; // Assuming the endpoint returns a boolean
-            if (hasExistingRoom) {
-                alert('기존에 등록된 방이 있습니다.');
+            const response = await request('get', '/rooms/check-room', {}, headers);
+            if (response.exists) {
+                alert("이미 등록된 방이 있습니다.");
+                push('/home'); // 사용자를 홈 페이지로 리디렉션
             }
         } catch (err) {
             console.error('Error checking existing room:', err);
+            // 필요한 경우 사용자에게 오류 메시지 표시
         }
     });
-    
+
+
     let directionSelections = 0;
     const maxDirectionSelections = 2;
 
     function handleDirectionChange(event) {
-        const currentDirection = event.target.id; // 현재 변경된 체크박스의 ID (예: "east", "west" 등)
-        roomDetails.direction[currentDirection] = event.target.checked; // 현재 방향의 선택 상태를 갱신
+        const currentDirection = event.target.id; // 현재 변경된 체크박스의 ID
+        roomDetails.direction[currentDirection] = event.target.checked; // 현재 방향의 선택 상태 갱신
 
-        // 현재 체크된 방향 개수를 계산
-        const checkedDirections = Object.values(roomDetails.direction).filter(Boolean).length;
+        // 현재 체크된 방향의 개수 계산
+        directionSelections = Object.values(roomDetails.direction).filter(Boolean).length;
 
-        if (checkedDirections > maxDirectionSelections) {
-            // 사용자에게 경고 메시지를 표시
+        if (directionSelections > maxDirectionSelections) {
+            // 사용자에게 경고 메시지 표시
             alert('최대 두 개의 방향만 선택할 수 있습니다.');
 
-            // 가장 최근의 선택을 취소
+            // 가장 최근의 선택 취소
             roomDetails.direction[currentDirection] = false;
             event.target.checked = false;
         }
     }
-    
+
     let error = { detail: [] };
 
     async function registerRoom(event) {
         event.preventDefault();
-        let url = "/rooms";
+        console.log('Current access token:', $access_token); // 토큰 확인
+
+        // 백엔드에 맞게 변환된 roomDetails를 준비합니다.
+        let transformedRoomDetails = {
+            ...roomDetails,
+            room_type: roomTypeMapping[roomDetails.room_type],
+            floor: floorMapping[roomDetails.floor],
+            gate: gateMapping[roomDetails.gate],
+            is_contract: contractMapping[roomDetails.is_contract],
+            direction: Object.entries(roomDetails.direction)
+                .reduce((sum, [key, value]) => value ? sum + directionValues[key] : sum, 0),
+            // option 필드 내 체크박스를 int로 변환
+            rent_aid: roomDetails.option.rent_aid ? 1 : 0,
+            preview: roomDetails.option.preview ? 1 : 0,
+            extension: roomDetails.option.extension ? 1 : 0,
+            elec_bill: roomDetails.option.elec_bill ? 1 : 0,
+            water_bill: roomDetails.option.water_bill ? 1 : 0,
+            gas_bill: roomDetails.option.gas_bill ? 1 : 0,
+            kit_sep: roomDetails.option.kit_sep ? 1 : 0,
+            stove_type: roomDetails.option.stove_type ? 1 : 0,
+            fridge: roomDetails.option.fridge ? 1 : 0,
+            ac: roomDetails.option.ac ? 1 : 0,
+            mw: roomDetails.option.mw ? 1 : 0,
+            balcony: roomDetails.option.balcony ? 1 : 0,
+            dryer: roomDetails.option.dryer ? 1 : 0
+        
+        };
+
+        const headers = {
+            'Authorization': `Bearer ${$access_token}`
+        };
+
         try {
-            const response = await request('post', url, roomDetails);
+            const response = await request('post', '/rooms', transformedRoomDetails, headers);
             if (response) {
-                // 서버로부터 성공적인 응답을 받았을 경우
-                alert('방 등록이 완료되었습니다.'); // 사용자에게 알림
-                push('/home'); // 사용자를 홈 화면으로 리다이렉트
+                alert('방 등록이 완료되었습니다.');
+                push('/home');
             }
         } catch (err) {
             console.error('Room Registration Error:', err);
-            error = JSON.parse(err.message);
-            alert('방 등록에 실패했습니다.'); // 에러 메시지를 사용자에게 보여줌
+            let errorMessage = "방 등록에 실패했습니다.";
+
+            // 오류 메시지를 JSON 객체로 변환
+            const errorData = JSON.parse(err.message);
+            if (errorData && errorData.detail) {
+                errorMessage = errorData.detail;
+            }
+            alert(errorMessage); // 사용자에게 오류 메시지 표시
         }
     }
-
 </script>
 
 

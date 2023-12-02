@@ -1,9 +1,27 @@
 <script>
-  import { link } from 'svelte-spa-router';
+  import { link, location } from 'svelte-spa-router';
   import { access_token, username, is_login } from "../lib/store"
+  import { getNotificationsContext } from 'svelte-notifications';
+   
+  const { addNotification } = getNotificationsContext();
 
+  let isVisible = true;
+
+  function logout() {
+    $access_token = '';
+    $username = '';
+    $is_login = false;
+    addNotification({
+      text: '로그아웃 되었습니다.',
+      position: 'bottom-center',
+      type: 'success',
+      removeAfter: 4000
+    });
+  }
+  $: isVisible = $location !== '/' && $location !== '/register';
 </script>
 
+{#if isVisible}
 <nav class="navbar fixed-top navbar-expand-sm navbar-light">
   <a use:link href="/home" class="navbar-brand">KNUCON</a>
   <div class="collapse navbar-collapse">
@@ -22,11 +40,7 @@
       </li>
       {#if $is_login }
           <li class="nav-item">
-              <a use:link href="/" class="nav-link" on:click={() => {
-                  $access_token = ''
-                  $username = ''
-                  $is_login = false
-              }}>로그아웃 ({$username})</a>
+              <a use:link href="/" class="nav-link" on:click={logout}>로그아웃 ({$username})</a>
           </li>
       {:else}
           <li class="nav-item">
@@ -39,6 +53,7 @@
     </ul>
   </div>
 </nav>
+{/if}
 
 <style>
   .navbar {

@@ -76,11 +76,11 @@ def login_user(user_login: UserLogin, conn) -> str:
 
         else:
             print("\n <<< Login failed: Invalid credentials \n")
-            return "Login failed"  # 로그인 실패 메시지 반환
+            return "로그인 실패"  # 로그인 실패 메시지 반환
         
     except Exception as e:
         print('Error during login:', e)
-        return "Error in login process"  # 오류 메시지 반환
+        return "로그인 진행 중 오류"  # 오류 메시지 반환
     
     finally:
         if cursor:

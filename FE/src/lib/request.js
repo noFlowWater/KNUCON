@@ -1,19 +1,22 @@
 import qs from "qs"
 
-const request = async (operation, url, params, headers) => {
+const request = async (operation, url, params, headers = {}) => {
   let method = operation.toUpperCase();
   let _url = 'http://localhost:8000' + url;
 
+  // 기본 헤더 설정
+  const defaultHeaders = {
+    "Content-Type": 'application/json',
+    ...headers
+  };
+  
   if (method === 'GET') {
     _url += new URLSearchParams(params).toString();
   }
 
   let options = {
     method: method,
-    headers: {
-      "Content-Type": 'application/json',
-      ...headers
-    },
+    headers: defaultHeaders,
     credentials: 'include',
   };
   
