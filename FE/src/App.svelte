@@ -6,7 +6,7 @@
   import Login from './routes/Login.svelte';
   import Register from './routes/Register.svelte';
   import Post from './routes/Post.svelte';
-  import PostLike from './routes/PostLike.svelte'; // PostLike 추가
+  // import PostLike from './routes/PostLike.svelte'; // PostLike 추가
   import Mypage from './routes/MyPage/MyPage.svelte';
   import MyRooms from './routes/MyPage/MyRooms.svelte';
   import MyPosts from './routes/MyPage/MyPosts.svelte';

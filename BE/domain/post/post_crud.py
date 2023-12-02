@@ -44,24 +44,59 @@ def list_post(conn) -> list[str]:
 def get_post_details(post_id: str, conn) -> str:
     cursor = conn.cursor()
     try:
+        # POST와 ROOM 테이블을 JOIN하는 SQL 쿼리
         sql = """
-        SELECT P.*, (SELECT COUNT(W.PID) FROM WISHES W WHERE W.PID = P.POST_ID) AS WISH_COUNT
-        FROM POST P WHERE P.POST_ID = :1
+        SELECT P.*, (SELECT COUNT(W.PID) FROM WISHES W WHERE W.PID = P.POST_ID) AS WISH_COUNT, R.*
+        FROM POST P
+        LEFT JOIN ROOM R ON P.RID = R.ROOM_ID
+        WHERE P.POST_ID = :1
         """
         cursor.execute(sql, [post_id])
         row = cursor.fetchone()
         if row:
+            # row[4]는 POST_DATE (datetime), row[13]는 ROOM_DATE (datetime)
             post_data = {
                 "POST_ID": row[0], 
-                "RID": row[1],
+                "RID": row[1] if row[1] is not None else None,
                 "UID": row[2],
                 "POST_STATUS": row[3], 
-                "POST_DATE": row[4].isoformat() if row[2] else None,
+                "POST_DATE": row[4].isoformat() if row[4] else None,
                 "POST_VIEW_COUNT": row[5], 
                 "POST_TITLE": row[6], 
                 "POST_CONTENT": row[7], 
-                "WISH_COUNT": row[8]
+                "WISH_COUNT": row[8],
             }
+
+            # ROOM 데이터를 추가할 때 RID의 null 체크를 고려합니다.
+            if post_data["RID"] is not None:
+                post_data.update({
+                    "ROOM_DATE": row[11].isoformat() if row[11] else None,
+                    "ROOM_STATUS": row[12],
+                    "ROOM_NICKNAME": row[13],
+                    "ADDRESS": row[14],
+                    "AREA": row[15],
+                    "DEPOSIT": row[16],
+                    "PRICE": row[17],
+                    "ROOM_TYPE": row[18],
+                    "DIRECTION": row[19],
+                    "FLOOR": row[20],
+                    "GATE": row[21],
+                    "IS_CONTRACT": row[22],
+                    "RENT_AID": row[23],
+                    "PREVIEW": row[24],
+                    "EXTENSION": row[25],
+                    "ELEC_BILL": row[26],
+                    "WATER_BILL": row[27],
+                    "GAS_BILL": row[28],
+                    "KIT_SEP": row[29],
+                    "STOVE_TYPE": row[30],
+                    "FRIDGE": row[31],
+                    "AC": row[32],
+                    "MW": row[33],
+                    "BALCONY": row[34],
+                    "DRYER": row[35],
+                    # "PICTURE": row[36], # BLOB 데이터는 별도 처리가 필요할 수 있음
+                })
             return json.dumps(post_data)
         else:
             return json.dumps({})
