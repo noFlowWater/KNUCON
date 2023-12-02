@@ -9,6 +9,7 @@ import domain.post.post_router as post_router
 import domain.report.report_router as report_router
 import domain.wishes.wishes_router as wishes_router
 import domain.mypage.mypage_router as mypage_router
+import domain.chatroom.chatroom_router as chatroom_router
 
 app = FastAPI()
 
@@ -36,3 +37,4 @@ app.include_router(post_router.router)
 app.include_router(report_router.router)
 app.include_router(wishes_router.router)
 app.include_router(mypage_router.router)
+app.include_router(chatroom_router.router)

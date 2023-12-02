@@ -1,4 +1,5 @@
 from domain.wishes.wishes_schema import WishCreate
+import json
 
 def create_wish(wish_create: WishCreate, conn, user_id) -> dict:
     cursor = conn.cursor()
@@ -42,7 +43,7 @@ def list_wishes(user_id, conn) -> list:
         wishes_list.append({"pid": row[1]})
     cursor.close()
     conn.close()
-    return wishes_list
+    return json.dumps(wishes_list)
 
 
 def delete_wish(user_id, pid, conn) -> dict:

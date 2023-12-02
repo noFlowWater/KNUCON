@@ -118,3 +118,16 @@ def delete_post(post_id: str, conn) -> str:
     cursor.close()
     conn.close()
     return result
+
+
+def get_post_creator(post_id, conn):
+    try:
+        cursor = conn.cursor()
+        cursor.execute("SELECT \"UID\" FROM POST WHERE POST_ID = :1", [post_id])
+        result = cursor.fetchone()
+        return json.dumps({"UID": result[0]}) if result else json.dumps({"error": "Post not found"})
+
+    except Exception as e:
+        return json.dumps({"error": str(e)})
+    finally:
+        cursor.close()
