@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from typing import Optional
 
@@ -13,18 +13,22 @@ router = APIRouter(
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
+# add user_id for validation
 @router.post("") # POST /posts: create new post
-def create_post(create_post: PostInput, conn=Depends(get_db_connection), user_id: str = Depends(get_current_user_id)):
-    return post_crud.create_post(create_post, user_id)
+def create_post(create_post: PostInput, user_id: str = Depends(get_current_user_id),  conn=Depends(get_db_connection)):
+    return post_crud.create_post(create_post, user_id, conn)
 
 @router.get("")  # GET /posts: GET all posts
-def list_post(user_id: Optional[str] = None, conn=Depends(get_db_connection)):
-    return post_crud.list_post(user_id, conn)
+def list_post(user_id: str = Depends(get_current_user_id), conn=Depends(get_db_connection)):
+    return post_crud.list_post(conn)
 
 @router.get("/{post_id}")
-def get_post(post_id: str, conn=Depends(get_db_connection)): # GET /posts/:post_id: GET single post
-    return post_crud.get_post(post_id, conn)
+def read_post_details(post_id: str, conn=Depends(get_db_connection)):
+    post_json = post_crud.get_post_details(post_id, conn)
+    if post_json == "{}":
+        raise HTTPException(status_code=404, detail="Post not found")
+    return post_json
 
 @router.delete("/{post_id}") # DELETE /posts/:post_id : delete single post
-def delete_post(post_id: str, conn=Depends(get_db_connection)):
+def delete_post(post_id: str, user_id: str = Depends(get_current_user_id), conn=Depends(get_db_connection)):
     return post_crud.delete_post(post_id, conn)

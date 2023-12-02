@@ -5,7 +5,7 @@ from jose import jwt, JWTError
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-SECRET_KEY = "appleisgreat1234"  # Make sure to keep it consistent
+SECRET_KEY = "10d51693e4a88a9d01f0817eda9aabd6d2a7f50d5afa823ffff133c8e2ada3eb"  # Make sure to keep it consistent
 ALGORITHM = "HS256"
 
 def generate_unique_id(conn, prefix, table_name, column_name):
@@ -22,7 +22,7 @@ def generate_unique_id(conn, prefix, table_name, column_name):
                 break
     return unique_id
 
-def get_current_user_id(token: str = Depends(oauth2_scheme)) -> str:
+def get_current_user_id(token: str = Depends(oauth2_scheme)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id: str = payload.get("sub")

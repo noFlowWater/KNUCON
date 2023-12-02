@@ -14,9 +14,9 @@ router = APIRouter(
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 @router.post("") # POST /reports: create new report
-def file_report(file_report: ReportInput, conn=Depends(get_db_connection), reporter_uid: str = Depends(get_current_user_id)):
-    return report_crud.file_report(file_report, reporter_uid)
+def file_report(file_report: ReportInput, reporter_uid: str = Depends(get_current_user_id), conn=Depends(get_db_connection)):
+    return report_crud.file_report(file_report, conn, reporter_uid)
 
-@router.get("")  # GET /reports: GET all reports
-def list_report(user_id: Optional[str] = None, conn=Depends(get_db_connection)):
+@router.get("")  # GET /reports: GET all reports, add reporter_uid for authentication
+def list_report(user_id: Optional[str] = None, reporter_uid: str = Depends(get_current_user_id), conn=Depends(get_db_connection)):
     return report_crud.list_report(user_id, conn)

@@ -7,6 +7,8 @@ import domain.user.user_router as user_router
 import domain.room.room_router as room_router
 import domain.post.post_router as post_router
 import domain.report.report_router as report_router
+import domain.wishes.wishes_router as wishes_router
+import domain.mypage.mypage_router as mypage_router
 
 app = FastAPI()
 
@@ -14,8 +16,8 @@ origins=[
         "http://localhost:8000",       # FastAPI server url
         "http://127.0.0.1:8001",
         "http://localhost:5173",     # Need Svelte(Frontend) server url
-        # "http://155.230.36.27:5173",
-        # "http://127.0.0.1:5173",
+        "http://155.230.36.27:5173",
+        "http://127.0.0.1:5173",
         ]  
 
 app.add_middleware(
@@ -32,3 +34,5 @@ app.include_router(user_router.router)
 app.include_router(room_router.router)
 app.include_router(post_router.router)
 app.include_router(report_router.router)
+app.include_router(wishes_router.router)
+app.include_router(mypage_router.router)
