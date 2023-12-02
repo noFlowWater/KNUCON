@@ -19,3 +19,11 @@ def create_wish(wish: WishCreate, conn=Depends(get_db_connection), user_id: str 
 def list_wishes(conn=Depends(get_db_connection), user_id: str = Depends(get_current_user_id)):
     return wishes_crud.list_wishes(user_id, conn)
 
+@router.delete("/{pid}")  # DELETE /wishes/:pid
+def delete_wish(pid: str, conn=Depends(get_db_connection), user_id: str = Depends(get_current_user_id)):
+    return wishes_crud.delete_wish(user_id, pid, conn)
+
+@router.get("/check/{pid}")
+def check_wish(pid: str, conn=Depends(get_db_connection), user_id: str = Depends(get_current_user_id)):
+    return {"exists": wishes_crud.check_wish(user_id, pid, conn)}
+

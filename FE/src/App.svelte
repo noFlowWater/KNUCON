@@ -6,7 +6,6 @@
   import Login from './routes/Login.svelte';
   import Register from './routes/Register.svelte';
   import Post from './routes/Post.svelte';
-  // import PostLike from './routes/PostLike.svelte'; // PostLike 추가
   import Mypage from './routes/MyPage/MyPage.svelte';
   import MyRooms from './routes/MyPage/MyRooms.svelte';
   import MyPosts from './routes/MyPage/MyPosts.svelte';
@@ -14,6 +13,7 @@
   import PostDetail from './routes/PostDetail.svelte';
   import { checkRouteAccess } from './lib/routingGuard';
   import RoomRegister from './routes/RoomRegister.svelte';
+
 
   // 로그인이 필요하지 않은 기본 경로
   const publicRoutes = {

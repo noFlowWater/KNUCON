@@ -1,54 +1,110 @@
-<!-- PostDetail.svelte -->
 <script>
-    import { onMount } from 'svelte';
-    import request from '../lib/request'; 
-    import { access_token, is_login } from '../lib/store'; 
-    export let params = {}
+import { onMount } from 'svelte';
+import request from '../lib/request'; 
+import { access_token, is_login, username as currentUsername } from '../lib/store'; // currentUsername 추가
 
-    let postDetails = {};
-    let isLoading = true;
-    let isError = false;
+export let params = {};
 
-    onMount(async () => {
-        console.log("postId: "+params.postId)
-        if($is_login) {
-            try {
-                const response = await request('GET', `/posts/${params.postId}`, {}, {
-                    'Authorization': `Bearer ${$access_token}`
-                });
-                if (response) {postDetails = JSON.parse(response);}
-            } catch (error) {
-                console.error('Error fetching post details:', error);
-                isError = true;
-            } finally {
-                isLoading = false;
-            }
-        }
-    });
+let postDetails = {};
+let isLoading = true;
+let isError = false;
+let isLiked = false;
+let canLike = true; 
 
-     // Function to handle chatroom creation/start
-    async function startChat() {
-        if($is_login) {
-            try {
-                const response = await request('POST', `/chatroom/start/${postDetails.POST_ID}`, {}, {
-                    'Authorization': `Bearer ${$access_token}`
-                });
+onMount(async () => {
+    if ($is_login) {
+        try {
+            const response = await request('GET', `/posts/${params.postId}`, {}, {
+                'Authorization': `Bearer ${$access_token}`
+            });
+            if (response) {
+                postDetails = JSON.parse(response);
+                console.log("Post UID:", postDetails.UID);
+                console.log("Current Username:", $currentUsername);
 
-                if (response) {
-                    const { chatroomId } = JSON.parse(response);
-                    // navigate to the chatroom UI, replace '/chat' with your actual chat UI route
-                    window.location.href = `/chat/${chatroomId}`; 
+                canLike = postDetails.UID !== $currentUsername;
+                console.log("Can Like:", canLike);
+                if (canLike) {
+                    await checkWishList();
                 }
-            } catch (error) {
-                console.error('Error starting chat:', error);
-                // handle errors appropriately
+            } else {
+                isError = true;
             }
-        } else {
-            console.log("User must be logged in to start a chat.");
+        } catch (error) {
+            console.error('Error fetching post details:', error);
+            isError = true;
+        } finally {
+            isLoading = false;
+        }
+    } else {
+        isLoading = false;
+    }
+});
+
+async function checkWishList() {
+    if ($is_login) {
+        try {
+            const response = await request('GET', '/wishes', {}, {
+                'Authorization': `Bearer ${$access_token}`
+            });
+            if (response) {
+                const wishList = JSON.parse(response);
+                const isPostInWishList = wishList.some(item => item.pid === postDetails.POST_ID);
+                if (isPostInWishList) {
+                    isLiked = true;
+                }
+            }
+        } catch (error) {
+            console.error('Error checking wish list:', error);
         }
     }
-</script>
+}
 
+
+
+async function toggleLike() {
+    if (canLike) {
+        if (isLiked) {
+            try {
+                const response = await request('DELETE', `/wishes/${postDetails.POST_ID}`, {}, {
+                    'Authorization': `Bearer ${$access_token}`
+                });
+                const responseData = (typeof response === 'string') ? JSON.parse(response) : response;
+
+                if (responseData.error) {
+                    alert(responseData.error);
+                } else {
+                    alert('포스트가 위시리스트에서 제거되었습니다.');
+                    isLiked = false;
+                }
+            } catch (error) {
+                console.error('Error removing post from wish list:', error);
+                alert('위시리스트에서 제거하는 중 오류가 발생했습니다.');
+            }
+        } else {
+            try {
+                const response = await request('POST', '/wishes', { pid: postDetails.POST_ID }, {
+                    'Authorization': `Bearer ${$access_token}`
+                });
+                const responseData = (typeof response === 'string') ? JSON.parse(response) : response;
+
+                if (responseData.error) {
+                    alert(responseData.error);
+                } else {
+                    alert('포스트가 위시리스트에 추가되었습니다.');
+                    isLiked = true;
+                }
+            } catch (error) {
+                console.error('Error adding post to wish list:', error);
+                alert('위시리스트에 추가하는 중 오류가 발생했습니다.');
+            }
+        }
+    } else {
+        alert('내가 쓴 글은 찜할 수 없습니다.');
+    }
+}
+
+</script>
 <div class="page-container">
     <h1>Post Detail</h1>
     {#if isLoading}
@@ -97,6 +153,23 @@
             <!-- 'PICTURE' 필드는 이미지 처리가 필요하므로 별도로 처리 -->
             <!-- <img src={postDetails.PICTURE} /> -->
         {/if}
-    <button on:click={startChat}>Start Chat</button>
+        <button on:click={startChat}>Start Chat</button>
+        {#if $access_token && canLike}
+        <div class="like-button" on:click={toggleLike}>
+            {#if isLiked}
+                <img src="/full-heart.png" alt="Liked"/>
+            {:else}
+                <img src="/empty-heart.png" alt="Not Liked"/>
+            {/if}
+        </div>
+        {/if}
     {/if}
 </div>
+
+<style>
+    .like-button img {
+        width: 30px;
+        height: auto;
+        cursor: pointer;
+    }
+</style>
