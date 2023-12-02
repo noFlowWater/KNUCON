@@ -12,6 +12,8 @@
   import WishList from './routes/MyPage/WishList.svelte';
   import PostDetail from './routes/PostDetail.svelte';
   import { checkRouteAccess } from './lib/routingGuard';
+  import RoomRegister from './routes/RoomRegister.svelte';
+
 
   // 로그인이 필요하지 않은 기본 경로
   const publicRoutes = {
@@ -28,6 +30,7 @@
     '/mypage/posts': MyPosts,
     '/mypage/wishlist': WishList,
     '/posts/:postId': PostDetail,
+    '/room-register': RoomRegister
   };
 
   const routes = {

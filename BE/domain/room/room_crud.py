@@ -2,6 +2,7 @@ from domain.room.room_schema import RoomRegister, RoomInfo, MyRoomList
 from datetime import datetime
 from util import generate_unique_id
 from jose import jwt
+from fastapi import HTTPException
 
 def check_existing_room(user_id: str, conn) -> bool:
     cursor = conn.cursor()
@@ -10,10 +11,13 @@ def check_existing_room(user_id: str, conn) -> bool:
     return count > 0
 
 # 새로운 함수: 방 등록
-def register_room(user_id: str, room_register : RoomRegister, conn) -> str:
+def register_room(user_id: str, room_register : RoomRegister, conn):
     cursor = conn.cursor()
 
     try:
+        # Check if the user already has a room
+        if check_existing_room(user_id, conn):
+            raise HTTPException(status_code=400, detail="User already has a room")
 
         # Check if the user already has a room with room_status = 0
         if check_existing_room(user_id, conn):
@@ -35,10 +39,11 @@ def register_room(user_id: str, room_register : RoomRegister, conn) -> str:
         print("\n <<< Room registration complete \n")
         return room_id
 
+    except HTTPException as http_exc:
+        raise http_exc
     except Exception as e:
-        error_message = f"Room registration failed: {str(e)}"
-        print(error_message)
-        return error_message
+        # 다른 예외 처리
+        raise HTTPException(status_code=500, detail=str(e))
 
     finally:
         if cursor:
