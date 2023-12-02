@@ -22,3 +22,9 @@ def register_room_endpoint(room_register: RoomRegister, user_id: str = Depends(g
 @router.get("/list")  # GET /rooms/list
 def get_my_rooms(user_id: str = Depends(get_current_user_id), conn=Depends(get_db_connection)):
     return room_crud.get_my_rooms(user_id, conn)
+
+@router.get("/check-room")
+def check_room(user_id: str = Depends(get_current_user_id), conn=Depends(get_db_connection)):
+    if room_crud.check_existing_room(user_id, conn):
+        return {"exists": True}
+    return {"exists": False}
