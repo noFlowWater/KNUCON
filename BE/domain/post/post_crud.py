@@ -24,22 +24,141 @@ def create_post(create_post: PostInput, user_id, conn) -> str:
     conn.close()
     return result
 
-def list_post(conn) -> list[str]:
-    post_list = []
+def get_total_post_count(conn, search_params: dict):
     cursor = conn.cursor()
-    sql = "SELECT * FROM post"
-    cursor.execute(sql)
 
-    # post format:
-    # ('P0000337', 'R1000037', 'U0000037', 0, datetime.datetime(2021, 1, 14, 17, 45), 
-    # 53, 'Post-title-3mlmV', '간단한 포스트 내용을 입력합니다.')
-    for row in cursor:
-        post = f"post_id = {row[0]}, room_id = {row[1]}, user_id = {row[2]}, post_status = {row[3]},\
-          post_date = {row[4]}, post_view_count = {row[5]}, post_title = {row[6]}, post_content = {row[7]}"
-        post_list.append(post)
-    cursor.close()
-    conn.close()
-    return post_list
+    # Construct the WHERE clause as done in list_post function
+    query_conditions = []
+    bind_params = {}
+    
+    for key, value in search_params.items():
+        if value is None :
+            continue  # Skip None values
+
+        if key == "latest_desc" or key == "page" or key == "pageSize":
+            continue # Skip non-post values
+
+        if isinstance(value, list):
+            # Convert list items to strings for SQL IN clause
+            value_list = ', '.join(["'" + str(v) + "'" for v in value])
+            query_conditions.append(f"{key} IN ({value_list})")
+
+        elif isinstance(value, dict) and 'start' in value and 'end' in value:
+            # Handle range values
+            query_conditions.append(f"{key} BETWEEN :{key}_start AND :{key}_end")
+            bind_params[f"{key}_start"] = value['start']
+            bind_params[f"{key}_end"] = value['end']
+
+        elif isinstance(value, bool):
+            # Convert boolean to integer and use as bind parameter
+            query_conditions.append(f"{key} = :{key}")
+            bind_params[key] = int(value)
+
+    query = " AND ".join(query_conditions)
+
+    count_sql = f"""SELECT COUNT(DISTINCT p.post_id)
+                    FROM post p
+                    LEFT JOIN room r ON p.rid = r.room_id
+                    LEFT JOIN wishes w ON p.post_id = w.pid
+                    WHERE {query}"""
+    
+    try:
+        cursor.execute(count_sql, bind_params)
+        result = cursor.fetchone()
+        print(result)
+        total_posts = result[0] if result else 0
+        return total_posts
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return 0
+    finally:
+        cursor.close()
+
+def list_post(conn, search_params: dict, page_number: int = 1, page_size: int = 10):
+    total_posts = get_total_post_count(conn, search_params)
+    total_pages = (total_posts + page_size - 1) // page_size  # Calculating total number of pages
+
+    post_list = []
+    post_details = []
+    cursor = conn.cursor()
+
+    query_conditions = []
+    bind_params = {}  # Separate dictionary for bind parameters
+
+    for key, value in search_params.items():
+        if value is None :
+            continue  # Skip None values
+
+        if key == "latest_desc" or key == "page" or key == "pageSize":
+            continue # Skip non-post values
+
+        if isinstance(value, list):
+            # Convert list items to strings for SQL IN clause
+            value_list = ', '.join(["'" + str(v) + "'" for v in value])
+            query_conditions.append(f"{key} IN ({value_list})")
+
+        elif isinstance(value, dict) and 'start' in value and 'end' in value:
+            # Handle range values
+            query_conditions.append(f"{key} BETWEEN :{key}_start AND :{key}_end")
+            bind_params[f"{key}_start"] = value['start']
+            bind_params[f"{key}_end"] = value['end']
+
+        elif isinstance(value, bool):
+            # Convert boolean to integer and use as bind parameter
+            query_conditions.append(f"{key} = :{key}")
+            bind_params[key] = int(value)
+
+    # to determine order by direction
+    if search_params["latest_desc"] is True:
+        order_direction = "P.post_date DESC, COUNT(w.pid) DESC"
+    else:
+        order_direction = "COUNT(w.pid) DESC, P.post_date DESC"
+
+    # Constructing the SQL query with search parameters
+    query = " AND ".join(query_conditions)
+    
+    # handle page_number first
+    if page_number < 1:
+        page_number = 1
+    elif page_number > total_pages:
+        page_number = total_pages
+
+    offset = (page_number - 1) * page_size
+
+    sql = f"""SELECT p.post_id, COUNT(w.pid) as wish_count
+      FROM post p 
+      LEFT JOIN room r ON p.rid = r.room_id 
+      LEFT JOIN wishes w ON p.post_id = w.pid 
+      WHERE {query} 
+      GROUP BY p.post_id, P.post_date
+      ORDER BY {order_direction}
+      OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY"""
+
+    bind_params['limit'] = page_size
+    bind_params['offset'] = offset
+
+    try:
+        cursor.execute(sql, bind_params)
+        for row in cursor:
+            post_list.append(row[0])  # Assuming row[0] is the post_id
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+    try:
+        for post_id in post_list:
+            cursor.execute("SELECT p.post_id, p.\"UID\", p.post_status, p.post_date, p.post_view_count, p.post_title,\
+                            (SELECT COUNT(W.PID) FROM WISHES W WHERE W.PID = P.POST_ID) AS WISH_COUNT  \
+                           FROM post p LEFT JOIN wishes w ON p.post_id = w.pid  WHERE post_id = :post_id", {"post_id": post_id})
+            post_detail = cursor.fetchone()
+            post_details.append(post_detail)
+    except Exception as e:
+        print(f"An error occurred during post details query execution: {e}")
+    
+    finally:
+        cursor.close()
+        conn.close()
+    return post_details, total_pages
+
 
 def get_post(post_id:str, conn):
     cursor = conn.cursor()
