@@ -1,8 +1,8 @@
 from datetime import datetime
-
+import json
+import oracledb
 from domain.post.post_schema import PostInput
 from util import generate_unique_id
-
 
 def create_post(create_post: PostInput, user_id, conn) -> str:
     cursor = conn.cursor()
@@ -41,17 +41,35 @@ def list_post(conn) -> list[str]:
     conn.close()
     return post_list
 
-def get_post(post_id:str, conn):
+def get_post_details(post_id: str, conn) -> str:
     cursor = conn.cursor()
-    sql = f"SELECT * FROM post WHERE post.post_id = '{post_id}'"
-    cursor.execute(sql)
-
-    for row in cursor: # cannot directly get data from cursor
-        post = f"post_id = {row[0]}, room_id = {row[1]}, user_id = {row[2]}, post_status = {row[3]},\
-          post_date = {row[4]}, post_view_count = {row[5]}, post_title = {row[6]}, post_content = {row[7]}"
-    cursor.close()
-    conn.close()
-    return post
+    try:
+        sql = """
+        SELECT P.*, (SELECT COUNT(W.PID) FROM WISHES W WHERE W.PID = P.POST_ID) AS WISH_COUNT
+        FROM POST P WHERE P.POST_ID = :1
+        """
+        cursor.execute(sql, [post_id])
+        row = cursor.fetchone()
+        if row:
+            post_data = {
+                "POST_ID": row[0], 
+                "RID": row[1],
+                "UID": row[2],
+                "POST_STATUS": row[3], 
+                "POST_DATE": row[4].isoformat() if row[2] else None,
+                "POST_VIEW_COUNT": row[5], 
+                "POST_TITLE": row[6], 
+                "POST_CONTENT": row[7], 
+                "WISH_COUNT": row[8]
+            }
+            return json.dumps(post_data)
+        else:
+            return json.dumps({})
+    except oracledb.DatabaseError as e:
+        return json.dumps({"error": str(e)})
+    finally:
+        cursor.close()
+        conn.close()
 
 def delete_post(post_id: str, conn) -> str:
     cursor = conn.cursor()
