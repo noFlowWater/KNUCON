@@ -14,6 +14,7 @@
   import PostDetail from './routes/PostDetail.svelte';
   import { checkRouteAccess } from './lib/routingGuard';
   import RoomRegister from './routes/RoomRegister.svelte';
+  import ChatRoom from './routes/ChatRoom.svelte';
 
 
 
@@ -33,6 +34,7 @@
     '/mypage/posts': MyPosts,
     '/mypage/wishlist': WishList,
     '/posts/:postId': PostDetail,
+    '/posts/:postId/:chatRoomId': ChatRoom,
     '/room-register': RoomRegister
   };
 

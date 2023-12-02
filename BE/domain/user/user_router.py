@@ -6,10 +6,15 @@ from domain.user.user_schema import UserRegister, UserLogin, UserQuit, LoginIdUn
 import domain.user.user_crud as user_crud
 from util import get_current_user_id
 from db import get_db_connection
+import json
 
 
 router = APIRouter(prefix='/users')
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+@router.get("/me")
+async def read_users_me(current_user_id: str = Depends(get_current_user_id)):
+    return json.dumps({"user_id": current_user_id})
 
 @router.post("/check")
 def check_login_id_endpoint(login_id :LoginIdUniqueCheck,  conn=Depends(get_db_connection)):
