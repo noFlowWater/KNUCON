@@ -27,7 +27,7 @@
   <div class="collapse navbar-collapse">
     <ul class="navbar-nav mr-auto">
       <li class="nav-item">
-        <a use:link href="/post" class="nav-link">Post</a>
+        <a use:link href="/posts/search" class="nav-link">Post Search</a>
       </li>
       <li class="nav-item">
         <a use:link href="/room-register" class="nav-link">Room Register</a>

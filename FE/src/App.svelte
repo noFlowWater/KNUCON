@@ -5,6 +5,7 @@
   import Home from './routes/Home.svelte';
   import Login from './routes/Login.svelte';
   import Register from './routes/Register.svelte';
+  import PostSearch from './routes/Post_search.svelte';
   import Post from './routes/Post.svelte';
   import Mypage from './routes/MyPage/MyPage.svelte';
   import MyRooms from './routes/MyPage/MyRooms.svelte';
@@ -13,6 +14,7 @@
   import PostDetail from './routes/PostDetail.svelte';
   import { checkRouteAccess } from './lib/routingGuard';
   import RoomRegister from './routes/RoomRegister.svelte';
+
 
 
   // 로그인이 필요하지 않은 기본 경로
@@ -25,6 +27,7 @@
   const privateRoutes = {
     '/home': Home,
     '/post': Post,
+    '/posts/search': PostSearch,
     '/mypage': Mypage,
     '/mypage/rooms': MyRooms,
     '/mypage/posts': MyPosts,
