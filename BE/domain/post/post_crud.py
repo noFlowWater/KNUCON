@@ -3,6 +3,7 @@ import json
 import oracledb
 from domain.post.post_schema import PostInput
 from util import generate_unique_id
+import numpy as np
 
 def create_post(create_post: PostInput, user_id, conn) -> str:
     cursor = conn.cursor()
@@ -158,6 +159,53 @@ def list_post(conn, search_params: dict, page_number: int = 1, page_size: int = 
         cursor.close()
         conn.close()
     return post_details, total_pages
+
+def recommend_post(user_id, conn):
+    cursor = conn.cursor()
+    try:
+        # 현재 사용자의 위시리스트 조회
+        cursor.execute("SELECT PID FROM WISHES WHERE \"UID\" = :1", [user_id])
+        user_wishes = [row[0] for row in cursor]
+
+
+        # 위시리스트가 비어있으면 추천하지 않음
+        if not user_wishes:
+            return []
+
+        # 다른 사용자들의 위시리스트 조회
+        cursor.execute("SELECT \"UID\", PID FROM WISHES WHERE \"UID\" != :1", [user_id])
+        other_users_wishes = {}
+        for uid, pid in cursor:
+            if uid in other_users_wishes:
+                other_users_wishes[uid].add(pid)
+            else:
+                other_users_wishes[uid] = {pid}
+
+        # 유사도 계산
+        similarities = {}
+        user_wishes_set = set(user_wishes)
+        for uid, wishes in other_users_wishes.items():
+            intersection = len(user_wishes_set.intersection(wishes))
+            union = len(user_wishes_set.union(wishes))
+            similarity = intersection / union if union != 0 else 0
+            similarities[uid] = similarity
+
+        # 상위 N명의 유사한 사용자 선택
+        top_users = sorted(similarities, key=similarities.get, reverse=True)[:3]
+
+        # 추천 포스트 결정
+        recommended_posts = set()
+        for uid in top_users:
+            for pid in other_users_wishes[uid]:
+                if pid not in user_wishes_set:
+                    recommended_posts.add(pid)
+        print(recommended_posts)
+        return list(recommended_posts)
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return []
+    finally:
+        cursor.close()
 
 
 def get_post_details(post_id: str, conn) -> str:
