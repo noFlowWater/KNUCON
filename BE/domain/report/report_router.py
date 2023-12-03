@@ -20,3 +20,7 @@ def file_report(file_report: ReportInput, reporter_uid: str = Depends(get_curren
 @router.get("")  # GET /reports: GET all reports, add reporter_uid for authentication
 def list_report(user_id: Optional[str] = None, reporter_uid: str = Depends(get_current_user_id), conn=Depends(get_db_connection)):
     return report_crud.list_report(user_id, conn)
+
+@router.get("/check/{reporter_uid}/{reported_uid}")
+def check_report(reporter_uid: str, reported_uid: str, conn=Depends(get_db_connection)):
+    return {"exists": report_crud.check_report_exists(reporter_uid, reported_uid, conn)}
