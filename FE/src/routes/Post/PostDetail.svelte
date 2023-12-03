@@ -1,7 +1,7 @@
 <script>
 import { onMount } from 'svelte';
-import request from '../lib/request'; 
-import { access_token, is_login, username as currentUsername } from '../lib/store'; // currentUsername 추가
+import request from '../../lib/request'; 
+import { access_token, is_login, username as currentUsername } from '../../lib/store'; // currentUsername 추가
 
 export let params = {};
 

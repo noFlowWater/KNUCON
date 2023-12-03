@@ -1,6 +1,7 @@
 <script>
-    import { access_token } from "../lib/store";
-    import request from '../lib/request.js';
+    import { navigateTo } from "../../util";
+    import { access_token } from "../../lib/store";
+    import request from '../../lib/request.js';
   
     // Reactive variables for form inputs
     let roomType = [];
@@ -106,9 +107,9 @@
             wish_count: postDataArray[6]
         };
         // if (data.post_status === 1) {
-        //   data.post_status = "들어온나"; 
+        //   data.post_status = "들어오세유"; 
         // } else if (data.post_status === 2) { 
-        //   data.post_status = "들어가께"; 
+        //   data.post_status = "들어갈게유"; 
         // }
         return data;
     }
@@ -399,7 +400,7 @@
   
   <!-- 게시글 작성 Button -->
   <div class="text-right" style="margin-top: 10px;">
-    <button type="link" class="btn btn-secondary">게시글 작성</button>
+    <button class="btn btn-secondary" on:click={() => navigateTo(`/posts/create`)}>게시글 작성</button>
   </div>
   <td>
 
@@ -441,9 +442,6 @@
     <button on:click={nextPage} class="btn btn-secondary">다음 페이지</button>
   {/if}
 </div>
-
-
-
 
 
 <style>

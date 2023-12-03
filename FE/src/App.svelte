@@ -5,16 +5,20 @@
   import Home from './routes/Home.svelte';
   import Login from './routes/Login.svelte';
   import Register from './routes/Register.svelte';
-  import PostSearch from './routes/Post_search.svelte';
-  import Post from './routes/Post.svelte';
+  import Post from './routes/Post/Post.svelte';
+  import PostSearch from './routes/Post/Post_search.svelte';
+  import PostCreateTemp from './routes/Post/Post_create_temp.svelte';
+  import PostCreateIn from './routes/Post/Post_create_in.svelte';
+  import PostCreateOut from './routes/Post/Post_create_out.svelte';
+  
+  
   import Mypage from './routes/MyPage/MyPage.svelte';
   import MyRooms from './routes/MyPage/MyRooms.svelte';
   import MyPosts from './routes/MyPage/MyPosts.svelte';
   import WishList from './routes/MyPage/WishList.svelte';
-  import PostDetail from './routes/PostDetail.svelte';
+  import PostDetail from './routes/Post/PostDetail.svelte';
   import { checkRouteAccess } from './lib/routingGuard';
   import RoomRegister from './routes/RoomRegister.svelte';
-
 
 
   // 로그인이 필요하지 않은 기본 경로
@@ -28,11 +32,14 @@
     '/home': Home,
     '/post': Post,
     '/posts/search': PostSearch,
+    '/posts/create': PostCreateTemp,
+    '/posts/create1': PostCreateIn,
+    '/posts/create2': PostCreateOut,
+    '/posts/:postId': PostDetail,
     '/mypage': Mypage,
     '/mypage/rooms': MyRooms,
     '/mypage/posts': MyPosts,
     '/mypage/wishlist': WishList,
-    '/posts/:postId': PostDetail,
     '/room-register': RoomRegister
   };
 
