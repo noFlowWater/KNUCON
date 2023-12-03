@@ -164,6 +164,26 @@
         }
     }
 
+
+    let showReportDialog = false; // 신고 대화 상자를 표시할지 여부
+    let reportReasons = { // 신고 사유
+        professionalSeller: false,
+        fraud: false,
+        abusiveLanguage: false,
+        other: false
+    };
+
+    // 신고하기 버튼을 눌렀을 때 실행되는 함수
+    function reportPost() {
+        // 신고 사유가 선택되었는지 확인
+        if (!Object.values(reportReasons).some(v => v)) {
+            alert('신고 사유를 선택해주세요.');
+            return;
+        }
+        // 서버에 신고 내용 전송 로직 추가...
+        alert('신고 접수되었습니다');
+        showReportDialog = false; // 대화 상자 숨기기
+    }
 </script>
 <div class="page-container">
     <h1>Post Detail</h1>
@@ -214,22 +234,69 @@
             <!-- <img src={postDetails.PICTURE} /> -->
         {/if}
         <button on:click={startChat}>Start Chat</button>
+
         {#if $access_token && canLike}
-        <div class="like-button" on:click={toggleLike}>
-            {#if isLiked}
-                <img src="/full-heart.png" alt="Liked"/>
-            {:else}
-                <img src="/empty-heart.png" alt="Not Liked"/>
-            {/if}
+        <div class="actions-container">
+            <div class="like-button" on:click={toggleLike}>
+                {#if isLiked}
+                    <img src="/full-heart.png" alt="Liked"/>
+                {:else}
+                    <img src="/empty-heart.png" alt="Not Liked"/>
+                {/if}
+            </div>
+            <div class="report-button" on:click={() => showReportDialog = true}>
+                <img src="/report-button.png" alt="Report"/>
+            </div>
         </div>
+        {/if}
+    
+        {#if showReportDialog}
+            <div class="report-dialog">
+                <h2>어떤 사유로 신고하시나요?</h2>
+                <label><input type="checkbox" bind:checked={reportReasons.professionalSeller}> 전문판매업자같아요</label>
+                <label><input type="checkbox" bind:checked={reportReasons.fraud}> 사기/허위 매물이에요</label>
+                <label><input type="checkbox" bind:checked={reportReasons.abusiveLanguage}> 사용자가 욕설을 해요</label>
+                <label><input type="checkbox" bind:checked={reportReasons.other}> 기타 사유</label>
+                <button on:click={reportPost}>신고하기</button>
+            </div>
         {/if}
     {/if}
 </div>
 
 <style>
-    .like-button img {
-        width: 30px;
+    .like-button img, .report-button img {
         height: auto;
         cursor: pointer;
     }
+    .like-button img {
+        width: 35px;
+    }
+    .report-button img {
+        width: 85px; 
+        vertical-align: middle; /* 버튼 이미지를 수직 중앙에 맞춤 */
+    }
+    .actions-container {
+        display: flex;
+        align-items: center;
+        gap: 10px; 
+    }
+
+    .report-dialog {
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+}
+
+    .report-button {
+        margin-top: -10px; /* 이 부분을 추가 */
+    }
+
 </style>
+
