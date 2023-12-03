@@ -8,7 +8,7 @@
         
         const formObject = {
             room_id: null,
-            post_status: 0,
+            post_status: 1,
             post_title: formData.get('post_title'),
             post_content: formData.get('post_content')
         };

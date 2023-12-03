@@ -41,15 +41,29 @@
         {:else if isError}
         <p>내 게시글을 불러오는 데 문제가 발생했습니다.</p>
         {:else if posts.length > 0}
-        <ul>
-            {#each posts as post}
-                <li>
-                    <button on:click={() => navigateToPostDetail(post.POST_ID)}>
-                        {post.POST_TITLE} / {post.POST_DATE} / Status : {post.POST_STATUS} / WishCount : {post.WISH_COUNT}
-                    </button>
-                </li>
-            {/each}
-        </ul>
+        {#each posts as post}
+          <div class="post" on:click={() => navigateToPostDetail(post.POST_ID)}>
+              <div class="post-header">
+                  <h2 class="post-title">{post.POST_TITLE}</h2>
+                  <span class="post-status">
+                      {#if post.POST_STATUS === 0}
+                          들어오세유
+                      {:else if post.POST_STATUS === 1}
+                          들어갈래유
+                      {:else if post.POST_STATUS === 2}
+                          끝났뿌따
+                      {/if}
+                  </span>
+              </div>
+              <div class="post-details">
+                  <span class="post-id">ID: {post.POST_ID}</span>
+                  <span class="post-author">글쓴이: {post.UID}</span>
+                  <span class="post-date">{post.POST_DATE}</span>
+                  <span class="post-views">조회수: {post.POST_VIEW_COUNT}</span>
+                  <span class="post-wishes">찜: {post.WISH_COUNT}</span>
+              </div>
+          </div>
+        {/each}
         {:else}
         <p>등록된 내 게시글이 없습니다.</p>
         {/if}
@@ -72,30 +86,46 @@
     text-align: center;
     color: #666;
 }
-.myPosts ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-.myPosts li {
+.post {
     background-color: #f9f9f9;
     border: 1px solid #ddd;
-    margin-bottom: 10px;
     padding: 10px;
     border-radius: 5px;
-}
-.myPosts button {
-    background-color: #007bff;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    text-align: left;
-    width: 100%;
+    margin-bottom: 10px;
     cursor: pointer;
 }
 
-.myPosts button:hover {
-    background-color: #0056b3;
+.post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
 }
+
+.post-title {
+    font-size: 18px;
+    color: #007bff;
+    margin: 0;
+}
+
+.post-status {
+    background-color: #28a745;
+    color: white;
+    padding: 3px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.post-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 14px;
+    color: #666;
+}
+
+.post-id, .post-author, .post-date, .post-views, .post-wishes {
+    white-space: nowrap;
+}
+
 </style>

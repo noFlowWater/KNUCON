@@ -234,12 +234,38 @@
                     <p><strong>Area:</strong> {postDetails.AREA}</p>
                     <p><strong>Deposit:</strong> {postDetails.DEPOSIT}</p>
                     <p><strong>Price:</strong> {postDetails.PRICE}</p>
-                    <p><strong>Room Type:</strong> {postDetails.ROOM_TYPE}</p>
+                    <p><strong>Room Type:</strong> 
+                        {#if postDetails.ROOM_TYPE === 1}
+                            원룸
+                        {:else if postDetails.ROOM_TYPE === 2}
+                            투룸
+                        {:else if postDetails.ROOM_TYPE === 3}
+                            쓰리룸 이상
+                        {/if}
+                    </p>
                     <p><strong>Direction:</strong> {postDetails.DIRECTION}</p>
                     <p><strong>Floor:</strong> {postDetails.FLOOR}</p>
-                    <p><strong>Gate:</strong> {postDetails.GATE}</p>
+                    <p><strong>Gate:</strong> 
+                        {#if postDetails.GATE === 0}
+                            북문/농장문
+                        {:else if postDetails.GATE === 1}
+                            서문/수영장문
+                        {:else if postDetails.GATE === 2}
+                            솔로문/조은문
+                        {:else if postDetails.GATE === 3}
+                            쪽문/정문/수의대문
+                        {:else if postDetails.GATE === 4}
+                            테크노문/나리문/동문
+                        {/if}
+                    </p>
                     <div class="room-options">
-                        <p><strong>Contract Status:</strong> <span class="status-indicator {postDetails.IS_CONTRACT ? 'yes' : 'no'}"></span></p>
+                        <p><strong>Contract Status:</strong> 
+                            {#if postDetails.IS_CONTRACT === 0}
+                                월세
+                            {:else if postDetails.IS_CONTRACT === 1}
+                                전세
+                            {/if}
+                        </p>
                         <p><strong>Rent Aid:</strong> <span class="status-indicator {postDetails.RENT_AID ? 'yes' : 'no'}"></span></p>
                         <p><strong>Preview Available:</strong> <span class="status-indicator {postDetails.PREVIEW ? 'yes' : 'no'}"></span></p>
                         <p><strong>Extension Option:</strong> <span class="status-indicator {postDetails.EXTENSION ? 'yes' : 'no'}"></span></p>
@@ -247,7 +273,13 @@
                         <p><strong>Water Bill Included:</strong> <span class="status-indicator {postDetails.WATER_BILL ? 'yes' : 'no'}"></span></p>
                         <p><strong>Gas Bill Included:</strong> <span class="status-indicator {postDetails.GAS_BILL ? 'yes' : 'no'}"></span></p>
                         <p><strong>Kitchen Separated:</strong> <span class="status-indicator {postDetails.KIT_SEP ? 'yes' : 'no'}"></span></p>
-                        <p><strong>Stove Type:</strong> <span class="status-indicator {postDetails.STOVE_TYPE ? 'yes' : 'no'}"></span></p>
+                        <p><strong>Stove Type:</strong> 
+                            {#if postDetails.STOVE_TYPE === 0}
+                                가스레인지
+                            {:else if postDetails.STOVE_TYPE === 1}
+                                인덕션
+                            {/if}
+                        </p>
                         <p><strong>Fridge Included:</strong> <span class="status-indicator {postDetails.FRIDGE ? 'yes' : 'no'}"></span></p>
                         <p><strong>Air Conditioning:</strong> <span class="status-indicator {postDetails.AC ? 'yes' : 'no'}"></span></p>
                         <p><strong>Microwave Included:</strong> <span class="status-indicator {postDetails.MW ? 'yes' : 'no'}"></span></p>

@@ -37,8 +37,8 @@
 
     const roomTypeMapping = { 'oneroom': 1, 'tworoom': 2, 'threeroom_plus': 3 };
     const floorMapping = { 'first': 1, 'second': 2, 'third': 3, 'fourth': 4, 'etc': 5 };
-    const gateMapping = { 'gate1': 1, 'gate2': 2, 'gate3': 3, 'gate4': 4, 'gate5': 5 };
-    const contractMapping = { 'monthly': 1, 'jeonse': 2, 'etc': 3 };
+    const gateMapping = { 'gate1': 0, 'gate2': 1, 'gate3': 2, 'gate4': 3, 'gate5': 4 };
+    const contractMapping = { 'monthly': 0, 'jeonse': 1};
     const directionValues = { 'east': 1, 'west': 2, 'south': 4, 'north': 8 };
 
     let hasExistingRoom = false;
@@ -270,7 +270,6 @@
     <div class="checkbox-group">
         <input type="radio" bind:group={roomDetails.is_contract} value="monthly" id="monthly"><label for="monthly">월세</label>
         <input type="radio" bind:group={roomDetails.is_contract} value="jeonse" id="jeonse"><label for="jeonse">전세</label>
-        <input type="radio" bind:group={roomDetails.is_contract} value="etc" id="contract_etc"><label for="contract_etc">기타</label>
     </div>
 
     <label for="option" class="input-label">상세옵션</label>

@@ -10,9 +10,9 @@ def create_post(create_post: PostInput, user_id, conn) -> str:
     post_id = generate_unique_id(conn, 'P', 'POST', 'post_id') # create unique post_id 
     post_date = datetime.now()
     print(post_id)
-    sql = "INSERT INTO post (post_id, rid, \"UID\", post_status, post_date, post_title, post_content) VALUES \
-        (:1, :2, :3, :4, :5, :6, :7)"
-    data = [(post_id, create_post.room_id, user_id, create_post.post_status, post_date,\
+    sql = "INSERT INTO post (post_id, rid, \"UID\", post_status, post_date, post_view_count, post_title, post_content) VALUES \
+        (:1, :2, :3, :4, :5, :6, :7, :8)"
+    data = [(post_id, create_post.room_id, user_id, create_post.post_status, post_date, 0,\
               create_post.post_title, create_post.post_content)]
     try:
         cursor.executemany(sql, data)

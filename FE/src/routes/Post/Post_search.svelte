@@ -173,10 +173,6 @@
             <input class="form-check-input" type="checkbox" id="isContract1" value="1" bind:group={isContract}>
             <label class="form-check-label" for="isContract1">전세</label>
           </div>
-          <div class="form-check form-check-inline">
-            <input class="form-check-input" type="checkbox" id="isContract2" value="2" bind:group={isContract}>
-            <label class="form-check-label" for="isContract2">기타</label>
-          </div>
         </td>
       </tr>
 
@@ -264,7 +260,7 @@
       <td>
         <div class="form-check form-check-inline">
           <input class="form-check-input" type="checkbox" id="gate0" value="0" bind:group={gate}>
-          <label class="form-check-label" for="gate0">북문</label>
+          <label class="form-check-label" for="gate0">북문/농장문/수영장문</label>
         </div>
         <div class="form-check form-check-inline">
           <input class="form-check-input" type="checkbox" id="gate1" value="1" bind:group={gate}>
@@ -272,15 +268,15 @@
         </div>
         <div class="form-check form-check-inline">
           <input class="form-check-input" type="checkbox" id="gate2" value="2" bind:group={gate}>
-          <label class="form-check-label" for="gate2">쪽문</label>
+          <label class="form-check-label" for="gate2">솔로문/조은문</label>
         </div>
         <div class="form-check form-check-inline">
           <input class="form-check-input" type="checkbox" id="gate3" value="3" bind:group={gate}>
-          <label class="form-check-label" for="gate3">수의대문</label>
+          <label class="form-check-label" for="gate3">쪽문/정문/수의대문</label>
         </div>
         <div class="form-check form-check-inline">
           <input class="form-check-input" type="checkbox" id="gate4" value="4" bind:group={gate}>
-          <label class="form-check-label" for="gate4">나리문</label>
+          <label class="form-check-label" for="gate4">테크노문/나리문/동문</label>
         </div>
       </td>
     </tr>

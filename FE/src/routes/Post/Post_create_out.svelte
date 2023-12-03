@@ -23,7 +23,7 @@
         
         const formObject = {
             room_id: rooms[0].room_id,
-            post_status: 1,
+            post_status: 0,
             post_title: formData.get('post_title'),
             post_content: formData.get('post_content')
         };
