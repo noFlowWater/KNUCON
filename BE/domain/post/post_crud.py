@@ -250,3 +250,49 @@ def get_post_creator(post_id, conn):
         return json.dumps({"error": str(e)})
     finally:
         cursor.close()
+        
+def check_my_post_status_0(user_id, conn):
+    try:
+        cursor = conn.cursor()
+        sql = """
+        SELECT 1
+        FROM POST
+        WHERE "UID" = :1
+        AND POST_STATUS = 0
+        """
+        cursor.execute(sql, [user_id])
+        result = cursor.fetchone()
+
+        # If a result is found, it means there's at least one post with status 0
+        if result:
+            return json.dumps({"status": "exists"})
+        else:
+            return json.dumps({"status": "not_exists"})
+
+    except Exception as e:
+        return json.dumps({"error": str(e)})
+    finally:
+        cursor.close()
+        
+def check_my_post_status_1(user_id, conn):
+    try:
+        cursor = conn.cursor()
+        sql = """
+        SELECT 1
+        FROM POST
+        WHERE "UID" = :1
+        AND POST_STATUS = 1
+        """
+        cursor.execute(sql, [user_id])
+        result = cursor.fetchone()
+
+        # If a result is found, it means there's at least one post with status 0
+        if result:
+            return json.dumps({"status": "exists"})
+        else:
+            return json.dumps({"status": "not_exists"})
+
+    except Exception as e:
+        return json.dumps({"error": str(e)})
+    finally:
+        cursor.close()
