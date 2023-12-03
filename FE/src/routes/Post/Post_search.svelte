@@ -1,7 +1,7 @@
 <script>
     import { navigateTo } from "../../util";
-    import { access_token } from "../../lib/store";
-    import request from '../../lib/request.js';
+    import { access_token } from "../lib/store";
+    import request from '../lib/request.js';
   
     // Reactive variables for form inputs
     let roomType = [];
@@ -107,9 +107,9 @@
             wish_count: postDataArray[6]
         };
         // if (data.post_status === 1) {
-        //   data.post_status = "들어오세유"; 
+        //   data.post_status = "들어온나"; 
         // } else if (data.post_status === 2) { 
-        //   data.post_status = "들어갈게유"; 
+        //   data.post_status = "들어가께"; 
         // }
         return data;
     }
@@ -442,6 +442,9 @@
     <button on:click={nextPage} class="btn btn-secondary">다음 페이지</button>
   {/if}
 </div>
+
+
+
 
 
 <style>

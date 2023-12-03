@@ -32,3 +32,7 @@ def read_post_details(post_id: str, conn=Depends(get_db_connection)):
 @router.delete("/{post_id}") # DELETE /posts/:post_id : delete single post
 def delete_post(post_id: str, user_id: str = Depends(get_current_user_id), conn=Depends(get_db_connection)):
     return post_crud.delete_post(post_id, conn)
+
+@router.get("/{post_id}/creator")
+async def get_post_creator(post_id: str, conn=Depends(get_db_connection)):
+    return post_crud.get_post_creator(post_id, conn)

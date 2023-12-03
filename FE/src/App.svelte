@@ -19,6 +19,7 @@
   import PostDetail from './routes/Post/PostDetail.svelte';
   import { checkRouteAccess } from './lib/routingGuard';
   import RoomRegister from './routes/RoomRegister.svelte';
+  import ChatRoom from './routes/ChatRoom.svelte';
 
 
   // 로그인이 필요하지 않은 기본 경로
@@ -40,6 +41,7 @@
     '/mypage/rooms': MyRooms,
     '/mypage/posts': MyPosts,
     '/mypage/wishlist': WishList,
+    '/posts/:postId/:chatRoomId': ChatRoom,
     '/room-register': RoomRegister
   };
 
