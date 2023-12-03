@@ -147,9 +147,9 @@ def list_post(conn, search_params: dict, page_number: int = 1, page_size: int = 
 
     try:
         for post_id in post_list:
-            cursor.execute("SELECT p.post_id, p.\"UID\", p.post_status, p.post_date, p.post_view_count, p.post_title,\
+            cursor.execute("SELECT p.post_id, u.name, p.post_status, p.post_date, p.post_view_count, p.post_title,\
                             (SELECT COUNT(W.PID) FROM WISHES W WHERE W.PID = P.POST_ID) AS WISH_COUNT  \
-                           FROM post p LEFT JOIN wishes w ON p.post_id = w.pid  WHERE post_id = :post_id", {"post_id": post_id})
+                           FROM post p LEFT JOIN wishes w ON p.post_id = w.pid LEFT JOIN \"USER\" u ON p.\"UID\" = u.user_id WHERE post_id = :post_id", {"post_id": post_id})
             post_detail = cursor.fetchone()
             post_details.append(post_detail)
     except Exception as e:
@@ -161,12 +161,12 @@ def list_post(conn, search_params: dict, page_number: int = 1, page_size: int = 
     return post_details, total_pages
 
 def recommend_post(user_id, conn):
+    recommended_posts_detail = []
     cursor = conn.cursor()
     try:
         # 현재 사용자의 위시리스트 조회
         cursor.execute("SELECT PID FROM WISHES WHERE \"UID\" = :1", [user_id])
-        user_wishes = [row[0] for row in cursor]
-
+        user_wishes = {row[0] for row in cursor}
 
         # 위시리스트가 비어있으면 추천하지 않음
         if not user_wishes:
@@ -183,10 +183,9 @@ def recommend_post(user_id, conn):
 
         # 유사도 계산
         similarities = {}
-        user_wishes_set = set(user_wishes)
         for uid, wishes in other_users_wishes.items():
-            intersection = len(user_wishes_set.intersection(wishes))
-            union = len(user_wishes_set.union(wishes))
+            intersection = len(user_wishes.intersection(wishes))
+            union = len(user_wishes.union(wishes))
             similarity = intersection / union if union != 0 else 0
             similarities[uid] = similarity
 
@@ -194,18 +193,31 @@ def recommend_post(user_id, conn):
         top_users = sorted(similarities, key=similarities.get, reverse=True)[:3]
 
         # 추천 포스트 결정
-        recommended_posts = set()
+        potential_recommended_posts = []
         for uid in top_users:
             for pid in other_users_wishes[uid]:
-                if pid not in user_wishes_set:
-                    recommended_posts.add(pid)
-        print(recommended_posts)
-        return list(recommended_posts)
+                if pid not in user_wishes:
+                    potential_recommended_posts.append((similarities[uid], pid))
+
+        # 유사도가 높은 순으로 상위 5개 게시물 선택
+        potential_recommended_posts.sort(reverse=True)
+        recommended_post_ids = {pid for _, pid in potential_recommended_posts[:5]}
+
+        for recommended_post_id in recommended_post_ids:
+            cursor.execute("SELECT p.post_id, u.name, p.post_status, p.post_date, p.post_view_count, p.post_title,\
+                            (SELECT COUNT(W.PID) FROM WISHES W WHERE W.PID = P.POST_ID) AS WISH_COUNT  \
+                            FROM post p LEFT JOIN wishes w ON p.post_id = w.pid LEFT JOIN \"USER\" u ON p.\"UID\" = u.user_id WHERE post_id = :post_id", {"post_id": recommended_post_id})
+            post_detail = cursor.fetchone()
+            recommended_posts_detail.append(post_detail)
+
+        print(recommended_posts_detail)
+        return recommended_posts_detail
     except Exception as e:
         print(f"An error occurred: {e}")
         return []
     finally:
         cursor.close()
+
 
 
 def get_post_details(post_id: str, conn) -> str:

@@ -164,18 +164,6 @@
 //$: fetchRecommendedPosts();
 </script>
 
-<!-- 추천 섹션 -->
-{#if hasWishlistItems}
-  <div class="recommendations">
-      <h2>추천 게시물</h2>
-      {#each recommendedPosts as post}
-          <div class="post" on:click={() => navigateToPostDetail(post.post_id)}>
-              {post.post_title}
-          </div>
-      {/each}
-  </div>
-{/if}
-
 <!-- Post Search Format -->
 <div class="container mx-auto" style="margin-top: 80px;">
 <form on:submit|preventDefault={fetchPosts}>
@@ -450,23 +438,22 @@
 
 </div>
 
-
-
 <!-- recommend display section-->
 <div class="display container mx-auto" style="margin-top: 20px;">
   {#if recommendedPosts.length > 0}
     <div class="post-container" style="margin-left: 30px;">
         <strong> Recommended for you:</strong>
-        {#each recommendedPosts as post}
-            <div class="post" on:click={() => navigateToPostDetail(post.post_id)}>
-                <p>| {post.post_id} | 글쓴이: {post.user_id} | {post.post_title} | 
-                {#if post.post_status === 0}
+        {#each recommendedPosts as recompost}
+            <div class="post" on:click={() => navigateToPostDetail(recompost[0])}>
+
+                <p>| 게시글 제목: {recompost[5]} | 글쓴이: {recompost[1]} |
+                {#if recompost[2] === 0}
                     들어온나
-                {:else if post.post_status === 1}
+                {:else if recompost[2] === 1}
                     들어간디
-                {:else if post.post_status === 2}
+                {:else if recompost[2] === 2}
                     끝났뿌따
-                {/if} | {post.post_date} | 조회수: {post.post_view_count} | 찜: {post.wish_count} |</p>
+                {/if} | 조회수: {recompost[4]} | 찜: {recompost[6]} |</p>
             </div>
         {/each}
     </div>
@@ -481,14 +468,14 @@
       <strong> Post Details:</strong>
       {#each posts as post}
           <div class="post" on:click={() => navigateToPostDetail(post.post_id)}>
-              <p>| {post.post_id} | 글쓴이: {post.user_id} | {post.post_title} | 
+              <p>| 게시글 제목: {post.post_title} | 글쓴이: {post.user_id} |  
               {#if post.post_status === 0}
                   들어온나
               {:else if post.post_status === 1}
                   들어간디
               {:else if post.post_status === 2}
                   끝났뿌따
-              {/if} | {post.post_date} | 조회수: {post.post_view_count} | 찜: {post.wish_count} |</p>
+              {/if} | 조회수: {post.post_view_count} | 찜: {post.wish_count} |</p>
           </div>
       {/each}
   </div>
