@@ -1,7 +1,8 @@
 <script>
     import { navigateTo } from "../../util";
-    import { access_token } from "../lib/store";
-    import request from '../lib/request.js';
+    import { access_token } from "../../lib/store";
+    import { push } from 'svelte-spa-router';
+    import request from '../../lib/request.js';
   
     // Reactive variables for form inputs
     let roomType = [];
@@ -128,6 +129,12 @@
 
     function setLatestDesc(value) {
       latest_desc = value;
+    }
+
+    async function navigateToPostDetail(post_id){
+        console.log("post_id: "+post_id)
+        // postId를 이용하여 상세 페이지로 네비게이션
+        push(`/posts/${post_id}`);
     }
 </script>
   
@@ -412,14 +419,15 @@
       <div class="post-container" style="margin-left: 30px;">
           <strong> Post Details:</strong>
           {#each posts as post}
-              <div class="post">
-                  <p>Post ID: {post.post_id}</p>
-                  <p>User ID: {post.user_id}</p>
-                  <p>Post Status: {post.post_status}</p>
-                  <p>Post Date: {post.post_date}</p>
-                  <p>Title: {post.post_title}</p>
-                  <p>View Count: {post.post_view_count}</p>
-                  <p>Wish Count: {post.wish_count}</p>
+          <div class="post" on:click={() => navigateToPostDetail(post.post_id)}>
+            <p>| {post.post_id} | 글쓴이: {post.user_id} | {post.post_title} | 
+            {#if post.post_status === 0}
+                들어오세유
+            {:else if post.post_status === 1}
+                들어갈래유
+            {:else if post.post_status === 2}
+                끝났뿌따
+            {/if} | {post.post_date} | 조회수: {post.post_view_count} | 찜: {post.wish_count} |</p>
               </div>
           {/each}
       </div>
