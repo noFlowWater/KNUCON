@@ -24,25 +24,25 @@
   
   
 </script>
-
 <div class="page-container">
-  <h1>My Page</h1>
-  {#if isLoading}
-    <p>Loading profile...</p>
-  {:else}
-    <div>
-      <p><strong>User ID:</strong> {userProfile.user_id}</p>
-      <p><strong>Name:</strong> {userProfile.name}</p>
-      <p><strong>Login ID:</strong> {userProfile.login_id}</p>
-      <p><strong>Phone Number:</strong> {userProfile.phone_number}</p>
+  <div class="mypage">
+    <h1>My Page</h1>
+    {#if isLoading}
+      <p>Loading profile...</p>
+    {:else}
+      <div>
+        <p><strong>User ID:</strong> {userProfile.user_id}</p>
+        <p><strong>Name:</strong> {userProfile.name}</p>
+        <p><strong>Login ID:</strong> {userProfile.login_id}</p>
+        <p><strong>Phone Number:</strong> {userProfile.phone_number}</p>
+      </div>
+    {/if}
+    <!-- 기능 버튼 -->
+    <div class="buttons">
+      <a use:link href="/mypage/rooms" class="button">내 방 조회</a>
+      <a use:link href="/mypage/posts" class="button">내 글 조회</a>
+      <a use:link href="/mypage/wishlist" class="button">찜 목록 보기</a>
     </div>
-  {/if}
-  <!-- 기능 버튼 -->
-  <div class="buttons">
-    <a use:link href="/mypage/rooms" class="button">내 방 조회</a>
-    <a use:link href="/mypage/posts" class="button">내 글 조회</a>
-    <a use:link href="/mypage/wishlist" class="button">찜 목록 보기</a>
-    <a use:link href="/mypage/withdraw" class="button">탈퇴</a>
   </div>
 </div>
 
@@ -62,4 +62,48 @@
   .button:hover {
     background-color: #e0e0e0; /* 호버 효과 */
   }
+
+  .mypage h1 {
+    text-align: center;
+    color: #333;
+    font-size: 2em;
+    margin-bottom: 20px;
+}
+  .mypage p {
+    text-align: center;
+    color: #666;
+}
+  .mypage div {
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin: 20px auto;
+    width: 80%;
+    border-radius: 8px;
+}
+  .mypage strong {
+    color: #000;
+}
+  .buttons {
+    text-align: center;
+    margin-top: 20px;
+}
+.button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    display: inline-block;
+    margin-right: 10px;
+}
+.button:hover {
+    background-color: #0056b3;
+}
+  .mypage {
+    font-family: 'Arial', sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
 </style>

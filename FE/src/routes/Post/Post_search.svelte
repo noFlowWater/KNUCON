@@ -399,73 +399,155 @@
     </tr>
 
   </table>
-  <!-- 필터 요청 Button -->
-  <div class="col-6 text-center">
-    <button type="submit" class="btn btn-secondary">필터 요청</button>
+
+  <!-- 필터 요청 및 게시글 작성 버튼 -->
+  <div class="buttons-container">
+    <button class="btn-filter">필터링 검색</button>
+    <button class="btn-create" on:click={() => navigateTo(`/posts/create`)}>게시글 작성</button>
   </div>
 
-  
-  <!-- 게시글 작성 Button -->
-  <div class="text-right" style="margin-top: 10px;">
-    <button class="btn btn-secondary" on:click={() => navigateTo(`/posts/create`)}>게시글 작성</button>
-  </div>
-  <td>
-
-</div>
-
-<!-- Post Display Section -->
-<div class="display container mx-auto" style="margin-top: 20px;">
-  {#if posts.length > 0}
-      <div class="post-container" style="margin-left: 30px;">
-          <strong> Post Details:</strong>
-          {#each posts as post}
+  <!-- Post Display Section -->
+  <div class="display-container">
+    {#if posts.length > 0}
+      <div class="post-container">
+        <strong> Post Details:</strong>
+        {#each posts as post}
           <div class="post" on:click={() => navigateToPostDetail(post.post_id)}>
-            <p>| {post.post_id} | 글쓴이: {post.user_id} | {post.post_title} | 
-            {#if post.post_status === 0}
-                들어오세유
-            {:else if post.post_status === 1}
-                들어갈래유
-            {:else if post.post_status === 2}
-                끝났뿌따
-            {/if} | {post.post_date} | 조회수: {post.post_view_count} | 찜: {post.wish_count} |</p>
+              <div class="post-header">
+                  <h2 class="post-title">{post.post_title}</h2>
+                  <span class="post-status">
+                      {#if post.post_status === 0}
+                          들어오세유
+                      {:else if post.post_status === 1}
+                          들어갈래유
+                      {:else if post.post_status === 2}
+                          끝났뿌따
+                      {/if}
+                  </span>
               </div>
-          {/each}
+              <div class="post-details">
+                  <span class="post-id">ID: {post.post_id}</span>
+                  <span class="post-author">글쓴이: {post.user_id}</span>
+                  <span class="post-date">{post.post_date}</span>
+                  <span class="post-views">조회수: {post.post_view_count}</span>
+                  <span class="post-wishes">찜: {post.wish_count}</span>
+              </div>
+          </div>
+        {/each}
       </div>
-  {/if}
+    {/if}
+  </div>
+
+  <!-- Page Controls -->
+  <div class="pagination-container">
+    {#if currentPage > 1}
+      <button on:click={previousPage} class="btn-pagination">이전 페이지</button>
+    {/if}
+
+    <p class="page-info">Page: {currentPage}/{totalPages}</p>
+
+    {#if currentPage < totalPages}
+      <button on:click={nextPage} class="btn-pagination">다음 페이지</button>
+    {/if}
+  </div>
 </div>
-
-<!-- Page Controls -->
-
-
-<div class="pagination-container" style="display: flex; justify-content: center; align-items: center; margin-top: 10px;">
-  {#if currentPage > 1}
-    <button on:click={previousPage} class="btn btn-secondary">이전 페이지</button>
-  {/if}
-  
-  {#if totalPages >= 1}
-    <p style="margin: 0 15px;">Page: {currentPage}/{totalPages}</p>
-  {/if}
-  
-  {#if currentPage < totalPages}
-    <button on:click={nextPage} class="btn btn-secondary">다음 페이지</button>
-  {/if}
-</div>
-
 
 
 
 
 <style>
-  .post-container {
-      border: 2px solid #323131;
-  }
+.buttons-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
 
-  .post {
-      border-bottom: 1px solid #323131;
-      padding: 10px;
-  }
+.btn-filter, .btn-create {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
 
-  .post:last-child {
-      border-bottom: none;
-  }
+.btn-filter {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-create {
+    background-color: #28a745;
+    color: white;
+}
+
+.display-container {
+    margin-top: 20px;
+}
+
+.post-container {
+    margin-left: 30px;
+}
+
+.post {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+.post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.post-title {
+    font-size: 18px;
+    color: #007bff;
+    margin: 0;
+}
+
+.post-status {
+    background-color: #28a745;
+    color: white;
+    padding: 3px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.post-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 14px;
+    color: #666;
+}
+
+.post-id, .post-author, .post-date, .post-views, .post-wishes {
+    white-space: nowrap;
+}
+
+
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.btn-pagination {
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #6c757d;
+    color: white;
+}
+
+.page-info {
+    margin: 0 15px;
+}
+
 </style>

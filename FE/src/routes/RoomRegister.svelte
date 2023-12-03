@@ -3,6 +3,9 @@
     import { push } from 'svelte-spa-router';
     import request from "../lib/request";
     import { access_token } from "../lib/store"; // access_token import
+    import { getNotificationsContext } from 'svelte-notifications';
+
+    const { addNotification } = getNotificationsContext();
 
     let roomDetails = {
         room_nickname: '',
@@ -47,7 +50,12 @@
         try {
             const response = await request('get', '/rooms/check-room', {}, headers);
             if (response.exists) {
-                alert("이미 등록된 방이 있습니다.");
+                addNotification({
+                    text: "이미 등록된 방이 있습니다.",
+                    position: 'bottom-center',
+                    type: 'warning',
+                    removeAfter: 4000
+                });
                 push('/home'); // 사용자를 홈 페이지로 리디렉션
             }
         } catch (err) {
