@@ -27,16 +27,16 @@
   <div class="collapse navbar-collapse">
     <ul class="navbar-nav mr-auto">
       <li class="nav-item">
-        <a use:link href="/posts/search" class="nav-link">Post Search</a>
+        <a use:link href="/posts/search" class="nav-link">게시글 검색</a>
       </li>
       <li class="nav-item">
-        <a use:link href="/room-register" class="nav-link">Room Register</a>
+        <a use:link href="/room-register" class="nav-link">방 등록</a>
       </li>
       <li class="nav-item">
-        <a use:link href="/chatroom" class="nav-link">Chatroom</a>
+        <a use:link href="/chatroom" class="nav-link">채팅방</a>
       </li>
       <li class="nav-item">
-        <a use:link href="/mypage" class="nav-link">MyPage</a>
+        <a use:link href="/mypage" class="nav-link">마이페이지</a>
       </li>
       {#if $is_login }
           <li class="nav-item">

@@ -39,13 +39,13 @@ class PostSearchParams(BaseModel):
     page_size: int = 10
 
 class PostInput(BaseModel):
-    room_id : str # need to get room_nickname and change into room_id
+    room_id : Optional[str] = None
 
     post_status : int
     post_title : str
     post_content : str
     
-    @validator('room_id', 'post_status', 'post_title', 'post_content')
+    @validator('post_title', 'post_content')
     def not_null(cls, v):
         if not v:
             raise ValueError('Empty values are not allowed.')

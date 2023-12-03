@@ -12,15 +12,15 @@ router = APIRouter(
     prefix = '/posts'
 )
 
+# add user_id for validation
+@router.post("/create") # POST /posts: create new post
+def create_post(create_post: PostInput, user_id: str = Depends(get_current_user_id), conn=Depends(get_db_connection)):
+    return post_crud.create_post(create_post, user_id, conn)
+
 @router.post("/search")
 def search_post(search_params: PostSearchParams,conn=Depends(get_db_connection)):
     search_dict = search_params.model_dump()
     return post_crud.list_post(conn, search_dict, search_params.page, search_params.page_size)
-
-# add user_id for validation
-@router.post("") # POST /posts: create new post
-def create_post(create_post: PostInput, user_id: str = Depends(get_current_user_id),  conn=Depends(get_db_connection)):
-    return post_crud.create_post(create_post, user_id, conn)
 
 @router.get("/{post_id}")
 def read_post_details(post_id: str, conn=Depends(get_db_connection)):

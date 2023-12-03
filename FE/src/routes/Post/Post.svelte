@@ -1,5 +1,5 @@
 <script>
-  import request from '../lib/request.js';
+  import request from '../../lib/request.js';
   import { onMount } from 'svelte';
 
   const url1 = "/posts";
