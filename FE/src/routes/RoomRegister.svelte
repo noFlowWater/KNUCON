@@ -3,6 +3,9 @@
     import { push } from 'svelte-spa-router';
     import request from "../lib/request";
     import { access_token } from "../lib/store"; // access_token import
+    import { getNotificationsContext } from 'svelte-notifications';
+
+    const { addNotification } = getNotificationsContext();
 
     let roomDetails = {
         room_nickname: '',
@@ -34,11 +37,12 @@
 
     const roomTypeMapping = { 'oneroom': 1, 'tworoom': 2, 'threeroom_plus': 3 };
     const floorMapping = { 'first': 1, 'second': 2, 'third': 3, 'fourth': 4, 'etc': 5 };
-    const gateMapping = { 'gate1': 1, 'gate2': 2, 'gate3': 3, 'gate4': 4, 'gate5': 5 };
-    const contractMapping = { 'monthly': 1, 'jeonse': 2, 'etc': 3 };
+    const gateMapping = { 'gate1': 0, 'gate2': 1, 'gate3': 2, 'gate4': 3, 'gate5': 4 };
+    const contractMapping = { 'monthly': 0, 'jeonse': 1};
     const directionValues = { 'east': 1, 'west': 2, 'south': 4, 'north': 8 };
 
-    let hasExistingRoom = false;
+    let isLoading = true;
+    let isError = false;
 
     onMount(async () => {
         const headers = {
@@ -47,12 +51,19 @@
         try {
             const response = await request('get', '/rooms/check-room', {}, headers);
             if (response.exists) {
-                alert("이미 등록된 방이 있습니다.");
-                push('/home'); // 사용자를 홈 페이지로 리디렉션
+                addNotification({
+                    text: "연결 미완료 방이 존재합니다.",
+                    position: 'bottom-center',
+                    type: 'warning',
+                    removeAfter: 4000
+                });
+                push('/home');
             }
         } catch (err) {
             console.error('Error checking existing room:', err);
-            // 필요한 경우 사용자에게 오류 메시지 표시
+            isError = true;
+        } finally {
+            isLoading = false;
         }
     });
 
@@ -208,8 +219,11 @@
 </style>
 
 <div class="page-container">
-
-
+    {#if isLoading}
+    <p>Loading...</p>
+    {:else if isError}
+    <p>방 존재 여부를 불러오는 데 문제가 발생했습니다.</p>
+    {:else}
     <label for="room-nickname" class="input-label"> 방 닉네임 </label>
     <input id="room-nickname" class="input-field" type="text" bind:value={roomDetails.room_nickname} />
 
@@ -262,7 +276,6 @@
     <div class="checkbox-group">
         <input type="radio" bind:group={roomDetails.is_contract} value="monthly" id="monthly"><label for="monthly">월세</label>
         <input type="radio" bind:group={roomDetails.is_contract} value="jeonse" id="jeonse"><label for="jeonse">전세</label>
-        <input type="radio" bind:group={roomDetails.is_contract} value="etc" id="contract_etc"><label for="contract_etc">기타</label>
     </div>
 
     <label for="option" class="input-label">상세옵션</label>
@@ -310,4 +323,5 @@
     
 
     <button class="button" on:click={registerRoom}>Save Room</button>
+    {/if}
 </div>

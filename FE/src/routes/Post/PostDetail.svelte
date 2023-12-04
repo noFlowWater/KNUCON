@@ -3,6 +3,10 @@
     import request from '../../lib/request'; 
     import { access_token, is_login, username as currentUsername } from '../../lib/store'; // currentUsername 추가
     import { push } from 'svelte-spa-router';
+    import { getNotificationsContext } from 'svelte-notifications';
+    import { DateTimeFilter } from '../../util';
+
+    const { addNotification } = getNotificationsContext();
 
     export let params = {};
 
@@ -21,10 +25,10 @@
                 });
                 if (response) {
                     postDetails = JSON.parse(response);
-                    console.log("Post UID:", postDetails.UID);
+                    console.log("Post UID:", postDetails.POST_CREATOR);
                     console.log("Current Username:", $currentUsername);
 
-                    canLike = postDetails.UID !== $currentUsername;
+                    canLike = postDetails.POST_CREATOR !== $currentUsername;
                     console.log("Can Like:", canLike);
                     if (canLike) {
                         await checkWishList();
@@ -58,7 +62,12 @@
                 // 현재 사용자가 POST 작성자인지 확인
                 if (userId === postDetails.UID) {
                     // 현재 사용자가 POST 작성자인 경우
-                    // 해당 POST에 물려있는 CHATROOMLIST로 push.
+                    addNotification({
+                        text: '본인의 Post입니다.',
+                        position: 'bottom-center',
+                        type: 'warning',
+                        removeAfter: 4000
+                    });
                 } else {
                     // 현재 사용자가 POST 작성자가 아닌 경우
                     chatRoomId = await initializeChatRoom(postDetails.POST_ID);
@@ -132,14 +141,29 @@
                     const responseData = (typeof response === 'string') ? JSON.parse(response) : response;
 
                     if (responseData.error) {
-                        alert(responseData.error);
+                        addNotification({
+                            text: responseData.error,
+                            position: 'bottom-center',
+                            type: 'warning',
+                            removeAfter: 4000
+                        });
                     } else {
-                        alert('포스트가 위시리스트에서 제거되었습니다.');
+                        addNotification({
+                            text: '포스트가 위시리스트에서 제거되었습니다.',
+                            position: 'bottom-center',
+                            type: 'success',
+                            removeAfter: 4000
+                        });
                         isLiked = false;
                     }
                 } catch (error) {
                     console.error('Error removing post from wish list:', error);
-                    alert('위시리스트에서 제거하는 중 오류가 발생했습니다.');
+                    addNotification({
+                        text: '위시리스트에서 제거하는 중 오류가 발생했습니다.',
+                        position: 'bottom-center',
+                        type: 'error',
+                        removeAfter: 4000
+                    });
                 }
             } else {
                 try {
@@ -149,18 +173,38 @@
                     const responseData = (typeof response === 'string') ? JSON.parse(response) : response;
 
                     if (responseData.error) {
-                        alert(responseData.error);
+                        addNotification({
+                            text: responseData.error,
+                            position: 'bottom-center',
+                            type: 'warning',
+                            removeAfter: 4000
+                        });
                     } else {
-                        alert('포스트가 위시리스트에 추가되었습니다.');
+                        addNotification({
+                            text: '포스트가 위시리스트에 추가되었습니다.',
+                            position: 'bottom-center',
+                            type: 'success',
+                            removeAfter: 4000
+                        });
                         isLiked = true;
                     }
                 } catch (error) {
                     console.error('Error adding post to wish list:', error);
-                    alert('위시리스트에 추가하는 중 오류가 발생했습니다.');
+                    addNotification({
+                        text: '위시리스트에서 추가하는 중 오류가 발생했습니다.',
+                        position: 'bottom-center',
+                        type: 'error',
+                        removeAfter: 4000
+                    });
                 }
             }
         } else {
-            alert('내가 쓴 글은 찜할 수 없습니다.');
+            addNotification({
+                text: '내가 쓴 글은 찜할 수 없습니다.',
+                position: 'bottom-center',
+                type: 'warning',
+                removeAfter: 4000
+            });
         }
     }
 
@@ -185,118 +229,219 @@
         showReportDialog = false; // 대화 상자 숨기기
     }
 </script>
-<div class="page-container">
-    <h1>Post Detail</h1>
-    {#if isLoading}
-        <p>Loading...</p>
-    {:else if isError}
-        <p>Error loading post details.</p>
-    {:else}
-        <p>POST_ID : {postDetails.POST_ID}</p>
-        <p>RID : {postDetails.RID}</p>
-        <p>UID : {postDetails.UID}</p>
-        <p>POST_STATUS : {postDetails.POST_STATUS}</p>
-        <p>POST_DATE : {postDetails.POST_DATE}</p>
-        <p>POST_VIEW_COUNT : {postDetails.POST_VIEW_COUNT}</p>
-        <p>POST_CONTENT : {postDetails.POST_CONTENT}</p>
-        <p>WISH_COUNT : {postDetails.WISH_COUNT}</p>
-        <!-- ROOM 관련 데이터 추가 -->
-        <!-- 조건부 렌더링을 사용하여 ROOM 데이터가 있는 경우에만 표시 -->
-        {#if postDetails.RID}
-            <!-- <p>ROOM_ID : {postDetails.ROOM_ID}</p>
-            <p>ROOM_UID : {postDetails.ROOM_UID}</p> -->
-            <p>ROOM_DATE : {postDetails.ROOM_DATE}</p>
-            <p>ROOM_STATUS : {postDetails.ROOM_STATUS}</p>
-            <p>ROOM_NICKNAME : {postDetails.ROOM_NICKNAME}</p>
-            <p>ADDRESS : {postDetails.ADDRESS}</p>
-            <p>AREA : {postDetails.AREA}</p>
-            <p>DEPOSIT : {postDetails.DEPOSIT}</p>
-            <p>PRICE : {postDetails.PRICE}</p>
-            <p>ROOM_TYPE : {postDetails.ROOM_TYPE}</p>
-            <p>DIRECTION : {postDetails.DIRECTION}</p>
-            <p>FLOOR : {postDetails.FLOOR}</p>
-            <p>GATE : {postDetails.GATE}</p>
-            <p>IS_CONTRACT : {postDetails.IS_CONTRACT}</p>
-            <p>RENT_AID : {postDetails.RENT_AID}</p>
-            <p>PREVIEW : {postDetails.PREVIEW}</p>
-            <p>EXTENSION : {postDetails.EXTENSION}</p>
-            <p>ELEC_BILL : {postDetails.ELEC_BILL}</p>
-            <p>WATER_BILL : {postDetails.WATER_BILL}</p>
-            <p>GAS_BILL : {postDetails.GAS_BILL}</p>
-            <p>KIT_SEP : {postDetails.KIT_SEP}</p>
-            <p>STOVE_TYPE : {postDetails.STOVE_TYPE}</p>
-            <p>FRIDGE : {postDetails.FRIDGE}</p>
-            <p>AC : {postDetails.AC}</p>
-            <p>MW : {postDetails.MW}</p>
-            <p>BALCONY : {postDetails.BALCONY}</p>
-            <p>DRYER : {postDetails.DRYER}</p>
-            <!-- 'PICTURE' 필드는 이미지 처리가 필요하므로 별도로 처리 -->
-            <!-- <img src={postDetails.PICTURE} /> -->
-        {/if}
-        <button on:click={startChat}>Start Chat</button>
 
-        {#if $access_token && canLike}
-        <div class="actions-container">
-            <div class="like-button" on:click={toggleLike}>
-                {#if isLiked}
-                    <img src="/full-heart.png" alt="Liked"/>
-                {:else}
-                    <img src="/empty-heart.png" alt="Not Liked"/>
+<div class="page-container">
+    <div class="post-detail">
+        {#if isLoading}
+            <p>Loading...</p>
+        {:else if isError}
+            <p>Error loading post details.</p>
+        {:else}
+            <div class="post-header">
+                <h2>{postDetails.POST_TITLE}</h2>
+                <div class="post-meta">
+                    <span> {#if postDetails.POST_STATUS === 0}
+                          들어오세유
+                      {:else if postDetails.POST_STATUS === 1}
+                          들어갈래유
+                      {:else if postDetails.POST_STATUS === 2}
+                          끝났뿌따
+                      {/if}</span> | 
+                    <span><strong>글쓴이:</strong> {postDetails.POST_CREATOR}</span> | 
+                    <span><strong>날짜:</strong> {DateTimeFilter(postDetails.POST_DATE)}</span> | 
+                    <span><strong>조회수:</strong> {postDetails.POST_VIEW_COUNT}</span>
+                </div>
+            </div>
+            <div class="post-body">
+                <p>{postDetails.POST_CONTENT}</p>
+            </div>
+            {#if postDetails.RID}
+                <div class="room-details">
+                    <h3 class="room-info-head">
+                        Room Information of <span class="room-name">{postDetails.ROOM_NICKNAME}</span> /
+                        <span class={postDetails.ROOM_STATUS == 0 ? 'room-status incomplete' : 'room-status complete'}>
+                            {postDetails.ROOM_STATUS == 0 ? '연결 미완료' : '연결 완료'}
+                        </span>
+                    </h3>
+                    <p><strong>Address:</strong> {postDetails.ADDRESS}</p>
+                    <p><strong>Area:</strong> {postDetails.AREA}</p>
+                    <p><strong>Deposit:</strong> {postDetails.DEPOSIT}</p>
+                    <p><strong>Price:</strong> {postDetails.PRICE}</p>
+                    <p><strong>Room Type:</strong> 
+                        {#if postDetails.ROOM_TYPE === 1}
+                            원룸
+                        {:else if postDetails.ROOM_TYPE === 2}
+                            투룸
+                        {:else if postDetails.ROOM_TYPE === 3}
+                            쓰리룸 이상
+                        {/if}
+                    </p>
+                    <p><strong>Direction:</strong> {postDetails.DIRECTION}</p>
+                    <p><strong>Floor:</strong> {postDetails.FLOOR}</p>
+                    <p><strong>Gate:</strong> 
+                        {#if postDetails.GATE === 0}
+                            북문/농장문
+                        {:else if postDetails.GATE === 1}
+                            서문/수영장문
+                        {:else if postDetails.GATE === 2}
+                            솔로문/조은문
+                        {:else if postDetails.GATE === 3}
+                            쪽문/정문/수의대문
+                        {:else if postDetails.GATE === 4}
+                            테크노문/나리문/동문
+                        {/if}
+                    </p>
+                    <div class="room-options">
+                        <p><strong>Contract Status:</strong> 
+                            {#if postDetails.IS_CONTRACT === 0}
+                                월세
+                            {:else if postDetails.IS_CONTRACT === 1}
+                                전세
+                            {/if}
+                        </p>
+                        <p><strong>Rent Aid:</strong> <span class="status-indicator {postDetails.RENT_AID ? 'yes' : 'no'}"></span></p>
+                        <p><strong>Preview Available:</strong> <span class="status-indicator {postDetails.PREVIEW ? 'yes' : 'no'}"></span></p>
+                        <p><strong>Extension Option:</strong> <span class="status-indicator {postDetails.EXTENSION ? 'yes' : 'no'}"></span></p>
+                        <p><strong>Electricity Bill Included:</strong> <span class="status-indicator {postDetails.ELEC_BILL ? 'yes' : 'no'}"></span></p>
+                        <p><strong>Water Bill Included:</strong> <span class="status-indicator {postDetails.WATER_BILL ? 'yes' : 'no'}"></span></p>
+                        <p><strong>Gas Bill Included:</strong> <span class="status-indicator {postDetails.GAS_BILL ? 'yes' : 'no'}"></span></p>
+                        <p><strong>Kitchen Separated:</strong> <span class="status-indicator {postDetails.KIT_SEP ? 'yes' : 'no'}"></span></p>
+                        <p><strong>Stove Type:</strong> 
+                            {#if postDetails.STOVE_TYPE === 0}
+                                가스레인지
+                            {:else if postDetails.STOVE_TYPE === 1}
+                                인덕션
+                            {/if}
+                        </p>
+                        <p><strong>Fridge Included:</strong> <span class="status-indicator {postDetails.FRIDGE ? 'yes' : 'no'}"></span></p>
+                        <p><strong>Air Conditioning:</strong> <span class="status-indicator {postDetails.AC ? 'yes' : 'no'}"></span></p>
+                        <p><strong>Microwave Included:</strong> <span class="status-indicator {postDetails.MW ? 'yes' : 'no'}"></span></p>
+                        <p><strong>Balcony Available:</strong> <span class="status-indicator {postDetails.BALCONY ? 'yes' : 'no'}"></span></p>
+                        <p><strong>Dryer Included:</strong> <span class="status-indicator {postDetails.DRYER ? 'yes' : 'no'}"></span></p>
+                    </div>
+                    <!-- 'PICTURE' 필드는 이미지 처리가 필요하므로 별도로 처리 -->
+                    <!-- <img src={postDetails.PICTURE} alt="Room Image" /> -->
+                </div>
+            {/if}
+            <div class="post-actions">
+                {#if $access_token && canLike}
+                    <button class="chat-button" on:click={startChat}>Start Chat</button>
+                    <div class="like-button" on:click={toggleLike}>
+                        {#if isLiked}
+                            <img src="/full-heart.png" alt="Liked" />
+                        {:else}
+                            <img src="/empty-heart.png" alt="Not Liked" />
+                        {/if}
+                    </div>
                 {/if}
             </div>
-            <div class="report-button" on:click={() => showReportDialog = true}>
-                <img src="/report-button.png" alt="Report"/>
-            </div>
-        </div>
         {/if}
-    
-        {#if showReportDialog}
-            <div class="report-dialog">
-                <h2>어떤 사유로 신고하시나요?</h2>
-                <label><input type="checkbox" bind:checked={reportReasons.professionalSeller}> 전문판매업자같아요</label>
-                <label><input type="checkbox" bind:checked={reportReasons.fraud}> 사기/허위 매물이에요</label>
-                <label><input type="checkbox" bind:checked={reportReasons.abusiveLanguage}> 사용자가 욕설을 해요</label>
-                <label><input type="checkbox" bind:checked={reportReasons.other}> 기타 사유</label>
-                <button on:click={reportPost}>신고하기</button>
-            </div>
-        {/if}
-    {/if}
+    </div>
 </div>
 
 <style>
-    .like-button img, .report-button img {
-        height: auto;
+    .post-detail {
+        font-family: 'Arial', sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .post-detail h1, .post-header h2, .room-details h3 {
+        text-align: center;
+        color: #333;
+    }
+
+    .post-header {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .post-meta {
+        text-align: center;
+        color: #666;
+        font-style: italic;
+        margin-top: 10px;
+    }
+
+    .post-body {
+        padding: 20px;
+        line-height: 1.6;
+    }
+    .room-info-head {
+        font-size: 1.2em; /* Adjust the font size */
+        color: #333; /* Dark text color for readability */
+        margin: 10px 0; /* Margin for spacing */
+        font-weight: normal; /* Normal font weight */
+    }
+
+    .room-name {
+        color: #007BFF; /* Highlight color for the room name */
+        font-weight: bold; /* Bold font weight for emphasis */
+    }
+    .room-status.incomplete {
+        color: #28A745; /* Green color for incomplete status */
+        font-weight: bold; /* Bold font weight for emphasis */
+    }
+    .room-status.complete {
+        color: #DC3545; /* Red color for complete status */
+        font-weight: bold; /* Bold font weight for emphasis */
+    }
+
+    .room-details {
+        background-color: #f9f9f9;
+        padding: 15px;
+        margin-top: 20px;
+        border-radius: 5px;
+    }
+
+    .post-actions {
+        text-align: center;
+        padding: 20px;
+        border-top: 1px solid #ddd;
+        margin-top: 20px;
+    }
+    .status-indicator {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-left: 5px;
+    }
+
+    .status-indicator.yes::after {
+        content: '';
+        display: block;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background-color: green;
+    }
+
+    .status-indicator.no::after {
+        content: '';
+        display: block;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background-color: red;
+    }
+
+    .chat-button {
+        background-color: #007bff; /* 밝은 파란색 */
+        color: white;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 5px;
+        font-weight: bold;
         cursor: pointer;
-    }
-    .like-button img {
-        width: 35px;
-    }
-    .report-button img {
-        width: 85px; 
-        vertical-align: middle; /* 버튼 이미지를 수직 중앙에 맞춤 */
-    }
-    .actions-container {
-        display: flex;
-        align-items: center;
-        gap: 10px; 
+        transition: background-color 0.3s ease;
     }
 
-    .report-dialog {
-    background-color: white;
-    border: 1px solid #ccc;
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    position: fixed;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1000;
-}
-
-    .report-button {
-        margin-top: -10px; /* 이 부분을 추가 */
+    .chat-button:hover {
+        background-color: #0056b3; /* 좀 더 어두운 파란색 */
     }
-
 </style>
-

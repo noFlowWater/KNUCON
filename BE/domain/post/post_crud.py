@@ -11,9 +11,9 @@ def create_post(create_post: PostInput, user_id, conn) -> str:
     post_id = generate_unique_id(conn, 'P', 'POST', 'post_id') # create unique post_id 
     post_date = datetime.now()
     print(post_id)
-    sql = "INSERT INTO post (post_id, rid, \"UID\", post_status, post_date, post_title, post_content) VALUES \
-        (:1, :2, :3, :4, :5, :6, :7)"
-    data = [(post_id, create_post.room_id, user_id, create_post.post_status, post_date,\
+    sql = "INSERT INTO post (post_id, rid, \"UID\", post_status, post_date, post_view_count, post_title, post_content) VALUES \
+        (:1, :2, :3, :4, :5, :6, :7, :8)"
+    data = [(post_id, create_post.room_id, user_id, create_post.post_status, post_date, 0,\
               create_post.post_title, create_post.post_content)]
     try:
         cursor.executemany(sql, data)
@@ -225,9 +225,13 @@ def get_post_details(post_id: str, conn) -> str:
     try:
         # POST와 ROOM 테이블을 JOIN하는 SQL 쿼리
         sql = """
-        SELECT P.*, (SELECT COUNT(W.PID) FROM WISHES W WHERE W.PID = P.POST_ID) AS WISH_COUNT, R.*
+        SELECT P.*, 
+            (SELECT COUNT(W.PID) FROM WISHES W WHERE W.PID = P.POST_ID) AS WISH_COUNT, 
+            R.*, 
+            U.NAME
         FROM POST P
         LEFT JOIN ROOM R ON P.RID = R.ROOM_ID
+        INNER JOIN "USER" U ON P."UID" = U.USER_ID
         WHERE P.POST_ID = :1
         """
         cursor.execute(sql, [post_id])
@@ -244,6 +248,7 @@ def get_post_details(post_id: str, conn) -> str:
                 "POST_TITLE": row[6], 
                 "POST_CONTENT": row[7], 
                 "WISH_COUNT": row[8],
+                "POST_CREATOR": row[37],
             }
 
             # ROOM 데이터를 추가할 때 RID의 null 체크를 고려합니다.
@@ -305,6 +310,52 @@ def get_post_creator(post_id, conn):
         cursor.execute("SELECT \"UID\" FROM POST WHERE POST_ID = :1", [post_id])
         result = cursor.fetchone()
         return json.dumps({"UID": result[0]}) if result else json.dumps({"error": "Post not found"})
+
+    except Exception as e:
+        return json.dumps({"error": str(e)})
+    finally:
+        cursor.close()
+        
+def check_my_post_status_0(user_id, conn):
+    try:
+        cursor = conn.cursor()
+        sql = """
+        SELECT 1
+        FROM POST
+        WHERE "UID" = :1
+        AND POST_STATUS = 0
+        """
+        cursor.execute(sql, [user_id])
+        result = cursor.fetchone()
+
+        # If a result is found, it means there's at least one post with status 0
+        if result:
+            return json.dumps({"status": "exists"})
+        else:
+            return json.dumps({"status": "not_exists"})
+
+    except Exception as e:
+        return json.dumps({"error": str(e)})
+    finally:
+        cursor.close()
+        
+def check_my_post_status_1(user_id, conn):
+    try:
+        cursor = conn.cursor()
+        sql = """
+        SELECT 1
+        FROM POST
+        WHERE "UID" = :1
+        AND POST_STATUS = 1
+        """
+        cursor.execute(sql, [user_id])
+        result = cursor.fetchone()
+
+        # If a result is found, it means there's at least one post with status 0
+        if result:
+            return json.dumps({"status": "exists"})
+        else:
+            return json.dumps({"status": "not_exists"})
 
     except Exception as e:
         return json.dumps({"error": str(e)})

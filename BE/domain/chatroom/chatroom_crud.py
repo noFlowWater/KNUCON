@@ -27,7 +27,6 @@ def check_existing_chatroom(post_id, creator_uid, conn):
         
 def create_new_chatroom(post_id, creator_uid, conn):
     try:
-        print(">>>>>>>>>"+post_id)
         cursor = conn.cursor()
 
         new_chatroom_id = generate_chatroom_id(post_id, conn)
@@ -146,6 +145,52 @@ def get_chatroom_creator(post_id, chatroom_id, conn):
     finally:
         cursor.close()
         
+def get_chatroom_list(user_id, conn):
+    try:
+        cursor = conn.cursor()
+
+        chatrooms = []
+        query = """
+        SELECT p.POST_ID,
+            ch.CHATROOM_ID,
+            p.POST_TITLE, 
+            other_user.NAME as OTHER_USER_NAME, 
+            m.MSG_CONTENT as LATEST_MESSAGE, 
+            m.TIME as LATEST_MESSAGE_TIME
+        FROM CHATROOM ch
+        JOIN POST p ON ch.PID = p.POST_ID AND p.POST_STATUS <> 2
+        LEFT JOIN "USER" other_user ON other_user.USER_ID = CASE 
+                                                                WHEN ch.CREATOR_UID = :1 THEN p."UID"
+                                                                ELSE ch.CREATOR_UID 
+                                                            END
+        INNER JOIN (
+            SELECT CID, PID, MSG_CONTENT, TIME, 
+                ROW_NUMBER() OVER (PARTITION BY CID, PID ORDER BY TIME DESC) as rn
+            FROM MESSAGE
+        ) m ON ch.PID = m.PID AND ch.CHATROOM_ID = m.CID AND m.rn = 1
+        WHERE :2 IN (ch.CREATOR_UID, p."UID")
+        ORDER BY m.TIME DESC
+        """
+        cursor.execute(query, (user_id, user_id))
+
+        for row in cursor.fetchall():
+            chatrooms.append({
+                "POST_ID": row[0],
+                "CHATROOM_ID": row[1],
+                "POST_TITLE": row[2],
+                "OTHER_USER_NAME": row[3],
+                "LATEST_MESSAGE": row[4],
+                "LATEST_MESSAGE_TIME": row[5].isoformat() if row[5] else None,
+            })
+
+        return json.dumps(chatrooms)
+
+    except Exception as e:
+        return json.dumps({"error": str(e)})
+    finally:
+        if cursor:
+            cursor.close()
+    
         
 async def save_message(pid: str, chatroom_id: str, data: str, conn):
     cursor = None  # cursor 초기화
@@ -176,3 +221,5 @@ async def save_message(pid: str, chatroom_id: str, data: str, conn):
     finally:
         if cursor:
             cursor.close()
+            
+            

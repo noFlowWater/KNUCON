@@ -33,7 +33,7 @@
         <a use:link href="/room-register" class="nav-link">방 등록</a>
       </li>
       <li class="nav-item">
-        <a use:link href="/chatroom" class="nav-link">채팅방</a>
+        <a use:link href="/chatlist" class="nav-link">채팅방</a>
       </li>
       <li class="nav-item">
         <a use:link href="/mypage" class="nav-link">마이페이지</a>

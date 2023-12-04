@@ -2,7 +2,11 @@
     import { onMount, onDestroy } from 'svelte';
     import request from '../lib/request'; 
     import { access_token } from '../lib/store';
-    import { pop } from 'svelte-spa-router';
+    import { pop, push } from 'svelte-spa-router';
+    import { getNotificationsContext } from 'svelte-notifications';
+    import { navigateTo, DateTimeFilter } from '../util';
+
+    const { addNotification } = getNotificationsContext();
 
     export let params = {};
 
@@ -12,6 +16,8 @@
     let messages = [];
     let isPostCreator = false; // 현재 사용자가 POST의 작성자인지 여부
     let isChatRoomCreator = false; // 현재 사용자가 채팅방의 CREATOR인지 여부
+
+    let isLoading = true;
 
     let websocket;
     let newMessage = ''; // 사용자가 입력하는 새 메시지
@@ -37,7 +43,7 @@
             });
             const chatRoomCreator = chatRoomResponse ? JSON.parse(chatRoomResponse).CREATOR_UID : null;
             isChatRoomCreator = currentUser === chatRoomCreator;
-
+            console.log(isPostCreator,isChatRoomCreator)
             if (isPostCreator || isChatRoomCreator) {
                 // 진행
                 const messagesResponse = await request('GET', `/chatrooms/${postId}/${chatRoomId}/messages`, {}, {
@@ -62,9 +68,24 @@
             const message = JSON.parse(event.data);
             console.log(message);
             messages = [...messages, message];
+
+            // 새 메시지를 추가한 후에 페이지 스크롤을 맨 아래로 이동
+            setTimeout(() => {
+                window.scrollTo(0, document.body.scrollHeight);
+            },0); // 적절한 지연 시간 설정
         };
         websocket.onopen = (event) => {
             console.log('WebSocket connection established', event);
+            isLoading = false;
+            addNotification({
+                text: '채팅방에 입장했습니다!',
+                position: 'bottom-center',
+                type: 'success',
+                removeAfter: 4000
+            });
+            setTimeout(() => {
+                window.scrollTo(0, document.body.scrollHeight);
+            },0); // 적절한 지연 시간 설정
         };
 
         websocket.onerror = (error) => {
@@ -73,6 +94,12 @@
 
         websocket.onclose = (event) => {
             console.log('WebSocket connection closed', event);
+            addNotification({
+                text: '채팅방 소캣 연결이 끊겼습니다.',
+                position: 'bottom-center',
+                type: 'warning',
+                removeAfter: 6000
+            });
         };
     });
     // 컴포넌트 파괴 시 웹소켓 연결 해제
@@ -97,6 +124,15 @@
             newMessage = ''; // 입력 필드 초기화
         }
     }
+    function handleSubmit(event) {
+        event.preventDefault();
+        sendMessage();
+    }
+    async function navigateToPostDetail(post_id){
+        console.log("post_id: "+post_id)
+        // postId를 이용하여 상세 페이지로 네비게이션
+        push(`/posts/${post_id}`);
+    }
     function formatDateTime(dateTimeString) {
         // ISO 형식의 문자열을 받아 변환
         return dateTimeString
@@ -110,30 +146,189 @@
     }
 </script>
 
+<div class="page-container">
+    {#if isLoading}
+    <p>Loading Chatroom...</p>
+    {:else}
+    <div class="chatingroom-page">
+        <header class="chat-header">
+            <button on:click={() => navigateToPostDetail(postId)}>해당 게시글로 이동</button>
+        </header>
+        <div class="chat-container">
+            <section class="chat-room">
+                {#each messages as message}
+                    <article class="message {isMessageFromCurrentUser(message) ? 'user-message' : 'other-message'}">
+                        <header class="message-header">
+                            <time datetime="{message.TIME}">{DateTimeFilter(message.TIME)}</time>
+                        </header>
+                        <p class="content">{message.MSG_CONTENT}</p>
+                    </article>
+                {/each}
+            </section>
 
-<div>
-    <h1>Chat Room</h1>
-    <div>Post ID: {postId}</div>
-    <div>Chat Room ID: {chatRoomId}</div>
-
-    <div class="messages">
-        {#each messages as message}
-            <div class="message">
-                <div>
-                    {isMessageFromCurrentUser(message) ? 'You' : 'Other'}
-                    <div>{message.MSG_CONTENT}</div>
-                    <div>{message.TIME}</div>
-                </div>
-            </div>
-        {/each}
+            
+            <form on:submit={handleSubmit} class="message-form">
+                <footer class="message-input">
+                    <input type="text" id="text" bind:value={newMessage} placeholder="Type a message..." autocomplete="off"/>
+                    <button type="submit" class="send-button">Send</button>
+                </footer>
+            </form>
+            
+        </div>
     </div>
-
-    <div class="message-input">
-        <input type="text" bind:value={newMessage} placeholder="Type a message..." />
-        <button on:click={sendMessage}>Send</button>
-    </div>
+    {/if}
 </div>
 
 <style>
-    /* 여기에 스타일을 추가할 수 있습니다. */
+    .chatingroom-page {
+        font-family: 'Arial', sans-serif;
+        margin: 0 auto;
+        padding: 20px;
+        padding-bottom: 70px; /* 메시지 입력 폼의 높이에 따라 조정 */
+        background-color: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        position: relative; /* 상대적 위치 설정 */
+    }
+    
+    .chat-header {
+        text-align: center;
+        margin-bottom: 20px;
+        position: fixed; /* Fixes the header to the top */
+        display: inline-block; /* Width is determined by its children */
+        left: 50%; /* Position the left edge of the header in the middle of the screen */
+        transform: translateX(-50%); /* Shift the header back to the left by half its width */
+        background-color: #fff; /* Background color for the header */
+        z-index: 1000; /* Ensures the header stays on top of other content */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional: Adds a subtle shadow for depth */
+    }
+    .chat-header button {
+        background-color: rgb(134, 69, 160); /* Green background */
+        color: white; /* White text */
+        padding: 15px 32px; /* Padding for size */
+        text-align: center; /* Center the text */
+        text-decoration: none; /* Remove underline from text */
+        display: inline-block; /* Inline block display */
+        font-size: 16px; /* Font size */
+        margin: 4px 2px; /* Margin around the button */
+        cursor: pointer; /* Cursor changes to pointer on hover */
+        border: none; /* No border */
+        border-radius: 5px; /* Rounded corners */
+        transition-duration: 0.4s; /* Transition effect duration */
+    }
+
+    .chat-header button:hover {
+        background-color:  rgb(161, 52, 208);/* Darker shade of green on hover */
+    }
+    .chat-container {
+        display: flex;
+        flex-direction: column;
+        margin: auto;
+        overflow: hidden;
+    }
+
+    .chat-room {
+        flex-grow: 1; /* 채팅 내용이 공간을 채움 */
+        overflow-y: auto; /* 세로 스크롤 활성화 */
+        align-items: flex-start; /* 기본 정렬을 왼쪽으로 설정 */
+        padding: 10px;
+        margin-bottom: 10px; /* 폼과의 간격 조정 */
+        display: flex;
+        flex-direction: column;
+    }
+    .message {
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 20px;
+        color: white;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .user-message, .other-message {
+        max-width: 70%; /* 메시지의 최대 너비 제한 */
+        width: fit-content; /* 메시지 내용에 맞게 너비 조정 */
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 20px;
+        color: white;
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+    }
+    .user-message {
+        align-self: flex-end;
+        background-color: #007bff;
+    }
+
+    .other-message {
+        align-self: flex-start;
+        background-color: #6c757d;
+    }
+    
+    .message-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 5px;
+    }
+
+    .message-header h2 {
+        margin: 0;
+        font-size: 14px;
+    }
+
+    .content {
+        font-size: 16px;
+        margin: 0;
+    }
+
+    time {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+.chat-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.chat-header h1 {
+    color: #333;
+}
+.message-form {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-top: 1px solid #ddd;
+    position: fixed;
+    bottom: 0;
+    width: calc(100% - 40px); /* 페이지 컨테이너의 패딩에 맞춤 */
+}
+.message-input {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.message-input input[type="text"] {
+    width: 85%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-right: 10px;
+}
+
+.send-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.send-button:hover {
+    background-color: #45a049;
+}
+
 </style>

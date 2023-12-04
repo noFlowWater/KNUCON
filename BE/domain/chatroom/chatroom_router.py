@@ -10,6 +10,11 @@ router = APIRouter(
     prefix = '/chatrooms'
 )
 
+@router.get("/list")
+async def get_chatroom_list(user_id: str =  Depends(get_current_user_id), conn=Depends(get_db_connection)):
+    return chatroom_crud.get_chatroom_list(user_id, conn)
+
+
 @router.post("/start/{post_id}")
 async def start_chatroom(post_id: str, conn=Depends(get_db_connection), creator_uid: str = Depends(get_current_user_id)):
     return chatroom_crud.create_or_verify_chatroom(post_id, creator_uid, conn)
@@ -24,6 +29,9 @@ async def get_messages(post_id: str, chatroom_id: str, conn=Depends(get_db_conne
 @router.get("/{post_id}/{chatroom_id}/creator")
 async def get_chatroom_creator(post_id: str, chatroom_id: str, conn=Depends(get_db_connection)):
     return chatroom_crud.get_chatroom_creator(post_id, chatroom_id, conn)
+
+
+
         
 # 각 채팅방별로 연결된 클라이언트 관리
 chatrooms: Dict[str, List[WebSocket]] = {}
@@ -47,8 +55,7 @@ async def websocket_endpoint(websocket: WebSocket, pid: str, chatroom_id: str, c
             await chatroom_crud.save_message(pid, chatroom_id, data, conn)
             # 채팅방의 다른 사용자에게 메시지 전송
             for client in chatrooms[chatroom_key]:
-                if client == websocket:
-                    await client.send_text(data)
+                await client.send_text(data)
     except Exception as e:
         print("e:"+str(e))
         chatrooms[chatroom_key].remove(websocket)
