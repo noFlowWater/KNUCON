@@ -325,15 +325,35 @@
             {/if}
             <div class="post-actions">
                 {#if $access_token && canLike}
-                    <button class="chat-button" on:click={startChat}>Start Chat</button>
-                    <div class="like-button" on:click={toggleLike}>
-                        {#if isLiked}
-                            <img src="/full-heart.png" alt="Liked" />
-                        {:else}
-                            <img src="/empty-heart.png" alt="Not Liked" />
-                        {/if}
+                    <div class="button-container">
+                        <div class="left-buttons">
+                            <div class="report-button" on:click={() => showReportDialog = true}>
+                                <img src="/report-button.png" alt="Report"/>
+                            </div>
+                            <div class="like-button" on:click={toggleLike}>
+                                {#if isLiked}
+                                    <img src="/full-heart.png" alt="Liked" />
+                                {:else}
+                                    <img src="/empty-heart.png" alt="Not Liked" />
+                                {/if}
+                            </div>
+                        </div>
+                        <div class="right-buttons">
+                            <button class="chat-button" on:click={startChat}>Start Chat</button>
+                        </div>
                     </div>
                 {/if}
+                
+                {#if showReportDialog}
+                    <div class="report-dialog">
+                        <h2>어떤 사유로 신고하시나요?</h2>
+                        <label><input type="checkbox" bind:checked={reportReasons.professionalSeller}> 전문판매업자같아요</label>
+                        <label><input type="checkbox" bind:checked={reportReasons.fraud}> 사기/허위 매물이에요</label>
+                        <label><input type="checkbox" bind:checked={reportReasons.abusiveLanguage}> 사용자가 욕설을 해요</label>
+                        <label><input type="checkbox" bind:checked={reportReasons.other}> 기타 사유</label>
+                        <button on:click={reportPost}>신고하기</button>
+                    </div>
+                {/if}   
             </div>
         {/if}
     </div>
@@ -443,5 +463,48 @@
 
     .chat-button:hover {
         background-color: #0056b3; /* 좀 더 어두운 파란색 */
+    }
+        .like-button img, .report-button img {
+        height: auto;
+        cursor: pointer;
+    }
+    .like-button img {
+        width: 35px;
+    }
+    .report-button img {
+        width: 85px; 
+        vertical-align: middle; /* 버튼 이미지를 수직 중앙에 맞춤 */
+    }
+    .actions-container {
+        display: flex;
+        align-items: center;
+        gap: 10px; 
+    }
+
+    .report-dialog {
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+}
+
+    .report-button {
+        margin-top: -10px; /* 이 부분을 추가 */
+    }
+    .button-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .left-buttons, .right-buttons {
+        display: flex;
+        align-items: center;
     }
 </style>

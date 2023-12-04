@@ -35,16 +35,26 @@ def register_user(user_register: UserRegister, conn) -> str:
         cursor = conn.cursor()
         # 고유한 user_id 생성
         user_id = generate_unique_id(conn, 'U', 'USER', 'user_id') # create unique user_id 
-
-        # 사용자 등록 쿼리 실행
-        cursor.execute("INSERT INTO \"USER\" VALUES (:1, :2, :3, :4, :5)", (user_id, user_register.name, user_register.login_id, user_register.login_password, user_register.phone_number))
-        conn.commit()
-        msg = f'<<< User registration complete! user_id : {user_id}'
+        # 격리 수준 설정
+        cursor.execute("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE")
+        
+        query = "SELECT COUNT(*) FROM \"USER\" WHERE login_id = :login_id"
+        params = {'login_id': user_register.login_id}
+        cursor.execute(query, params)
+        result = cursor.fetchone()
+        # Check the result
+        if result[0] > 0:
+            # If the count is greater than 0, the login_id is not unique
+            msg = f'Register failed: This Login ID Already Exists'
+        else:
+            cursor.execute("INSERT INTO \"USER\" VALUES (:1, :2, :3, :4, :5)", (user_id, user_register.name, user_register.login_id, user_register.login_password, user_register.phone_number))
+            msg = f'<<< User registration complete! user_id : {user_id}'
     except Exception as e:
         msg = f'Register failed:{e}'
 
     finally:
         print(f"\n {msg} \n")
+        conn.commit()
         if cursor:
             cursor.close()
         if conn:
