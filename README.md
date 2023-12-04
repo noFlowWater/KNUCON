@@ -101,9 +101,15 @@ test
 
 ### 3. 데이터베이스 연결 및 로컬 서버 실행
 > 1번 터미널에서 아래 명령어를 순서대로 입력한다.
-'''cd KNUCON/BE'''
-'''uvicorn main:app --reload'''
+
+cd KNUCON/BE
+
+uvicorn main:app --reload
+
 > 2번 터미널에서 아래 명령어를 순서대로 입력한다.
-'''cd KNUCON/FE'''
-'''npm i'''
-'''npm run dev'''
+> 
+cd KNUCON/FE
+
+npm i
+
+npm run dev
