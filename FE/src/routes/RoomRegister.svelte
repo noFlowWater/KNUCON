@@ -41,7 +41,8 @@
     const contractMapping = { 'monthly': 0, 'jeonse': 1};
     const directionValues = { 'east': 1, 'west': 2, 'south': 4, 'north': 8 };
 
-    let hasExistingRoom = false;
+    let isLoading = true;
+    let isError = false;
 
     onMount(async () => {
         const headers = {
@@ -51,16 +52,18 @@
             const response = await request('get', '/rooms/check-room', {}, headers);
             if (response.exists) {
                 addNotification({
-                    text: "이미 등록된 방이 있습니다.",
+                    text: "연결 미완료 방이 존재합니다.",
                     position: 'bottom-center',
                     type: 'warning',
                     removeAfter: 4000
                 });
-                push('/home'); // 사용자를 홈 페이지로 리디렉션
+                push('/home');
             }
         } catch (err) {
             console.error('Error checking existing room:', err);
-            // 필요한 경우 사용자에게 오류 메시지 표시
+            isError = true;
+        } finally {
+            isLoading = false;
         }
     });
 
@@ -216,8 +219,11 @@
 </style>
 
 <div class="page-container">
-
-
+    {#if isLoading}
+    <p>Loading...</p>
+    {:else if isError}
+    <p>방 존재 여부를 불러오는 데 문제가 발생했습니다.</p>
+    {:else}
     <label for="room-nickname" class="input-label"> 방 닉네임 </label>
     <input id="room-nickname" class="input-field" type="text" bind:value={roomDetails.room_nickname} />
 
@@ -317,4 +323,5 @@
     
 
     <button class="button" on:click={registerRoom}>Save Room</button>
+    {/if}
 </div>

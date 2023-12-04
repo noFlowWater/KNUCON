@@ -3,6 +3,7 @@
     import request from '../../lib/request';
     import { push } from 'svelte-spa-router';
     import { access_token, is_login } from '../../lib/store';
+    import { DateTimeFilter, getPostStatusClass } from "../../util";
 
     let wishes = [];
     let isLoading = true;
@@ -46,7 +47,7 @@
           <div class="post" on:click={() => navigateToPostDetail(wish.POST_ID)}>
               <div class="post-header">
                   <h2 class="post-title">{wish.POST_TITLE}</h2>
-                  <span class="post-status">
+                  <span class={getPostStatusClass(wish.POST_STATUS)}>
                       {#if wish.POST_STATUS === 0}
                           들어오세유
                       {:else if wish.POST_STATUS === 1}
@@ -59,7 +60,7 @@
               <div class="post-details">
                   <span class="post-id">ID: {wish.POST_ID}</span>
                   <span class="post-author">글쓴이: {wish.UID}</span>
-                  <span class="post-date">{wish.POST_DATE}</span>
+                  <span class="post-date">{DateTimeFilter(wish.POST_DATE)}</span>
                   <span class="post-views">조회수: {wish.POST_VIEW_COUNT}</span>
                   <span class="post-wishes">찜: {wish.WISH_COUNT}</span>
               </div>
@@ -108,13 +109,24 @@
     margin: 0;
 }
 
-.post-status {
-    background-color: #28a745;
-    color: white;
-    padding: 3px 6px;
-    border-radius: 4px;
-    font-size: 14px;
-}
+    .post-status {
+        color: white;
+        padding: 3px 6px;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .status-coming {
+        background-color: #28a745; /* Green for coming */
+    }
+
+    .status-going {
+        background-color: #ffc107; /* Yellow for going */
+    }
+
+    .status-ended {
+        background-color: #dc3545; /* Red for ended */
+    }
 
 .post-details {
     display: flex;

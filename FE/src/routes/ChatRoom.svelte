@@ -2,8 +2,9 @@
     import { onMount, onDestroy } from 'svelte';
     import request from '../lib/request'; 
     import { access_token } from '../lib/store';
-    import { pop } from 'svelte-spa-router';
+    import { pop, push } from 'svelte-spa-router';
     import { getNotificationsContext } from 'svelte-notifications';
+    import { navigateTo, DateTimeFilter } from '../util';
 
     const { addNotification } = getNotificationsContext();
 
@@ -15,6 +16,8 @@
     let messages = [];
     let isPostCreator = false; // 현재 사용자가 POST의 작성자인지 여부
     let isChatRoomCreator = false; // 현재 사용자가 채팅방의 CREATOR인지 여부
+
+    let isLoading = true;
 
     let websocket;
     let newMessage = ''; // 사용자가 입력하는 새 메시지
@@ -73,6 +76,7 @@
         };
         websocket.onopen = (event) => {
             console.log('WebSocket connection established', event);
+            isLoading = false;
             addNotification({
                 text: '채팅방에 입장했습니다!',
                 position: 'bottom-center',
@@ -124,21 +128,16 @@
         event.preventDefault();
         sendMessage();
     }
+    async function navigateToPostDetail(post_id){
+        console.log("post_id: "+post_id)
+        // postId를 이용하여 상세 페이지로 네비게이션
+        push(`/posts/${post_id}`);
+    }
     function formatDateTime(dateTimeString) {
         // ISO 형식의 문자열을 받아 변환
         return dateTimeString
             .replace('T', ' ')  // 'T'를 공백으로 대체
             .slice(0, -1);      // 마지막 문자 ('Z') 제거
-    }
-    function DateTimeFilter(dateTimeStr) {
-        const date = new Date(dateTimeStr);
-        const year = date.getFullYear();
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const day = date.getDate().toString().padStart(2, '0');
-        const hours = date.getHours().toString().padStart(2, '0');
-        const minutes = date.getMinutes().toString().padStart(2, '0');
-        
-        return `${year}-${month}-${day} ${hours}:${minutes}`;
     }
     // 메시지가 현재 사용자에 의해 보내졌는지 확인하는 함수
     function isMessageFromCurrentUser(message) {
@@ -148,10 +147,12 @@
 </script>
 
 <div class="page-container">
+    {#if isLoading}
+    <p>Loading Chatroom...</p>
+    {:else}
     <div class="chatingroom-page">
         <header class="chat-header">
-            <div>Post ID: {postId}</div>
-            <div>Chat Room ID: {chatRoomId}</div>
+            <button on:click={() => navigateToPostDetail(postId)}>해당 게시글로 이동</button>
         </header>
         <div class="chat-container">
             <section class="chat-room">
@@ -175,6 +176,7 @@
             
         </div>
     </div>
+    {/if}
 </div>
 
 <style>
@@ -191,12 +193,32 @@
     .chat-header {
         text-align: center;
         margin-bottom: 20px;
+        position: fixed; /* Fixes the header to the top */
+        display: inline-block; /* Width is determined by its children */
+        left: 50%; /* Position the left edge of the header in the middle of the screen */
+        transform: translateX(-50%); /* Shift the header back to the left by half its width */
+        background-color: #fff; /* Background color for the header */
+        z-index: 1000; /* Ensures the header stays on top of other content */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional: Adds a subtle shadow for depth */
+    }
+    .chat-header button {
+        background-color: rgb(134, 69, 160); /* Green background */
+        color: white; /* White text */
+        padding: 15px 32px; /* Padding for size */
+        text-align: center; /* Center the text */
+        text-decoration: none; /* Remove underline from text */
+        display: inline-block; /* Inline block display */
+        font-size: 16px; /* Font size */
+        margin: 4px 2px; /* Margin around the button */
+        cursor: pointer; /* Cursor changes to pointer on hover */
+        border: none; /* No border */
+        border-radius: 5px; /* Rounded corners */
+        transition-duration: 0.4s; /* Transition effect duration */
     }
 
-    .chat-header h1 {
-        color: #333;
+    .chat-header button:hover {
+        background-color:  rgb(161, 52, 208);/* Darker shade of green on hover */
     }
-
     .chat-container {
         display: flex;
         flex-direction: column;
@@ -227,7 +249,7 @@
         padding: 10px;
         border-radius: 20px;
         color: white;
-        box-shadow: 0 13px 12px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
     }
     .user-message {
         align-self: flex-end;

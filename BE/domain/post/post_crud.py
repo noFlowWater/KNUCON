@@ -165,9 +165,13 @@ def get_post_details(post_id: str, conn) -> str:
     try:
         # POST와 ROOM 테이블을 JOIN하는 SQL 쿼리
         sql = """
-        SELECT P.*, (SELECT COUNT(W.PID) FROM WISHES W WHERE W.PID = P.POST_ID) AS WISH_COUNT, R.*
+        SELECT P.*, 
+            (SELECT COUNT(W.PID) FROM WISHES W WHERE W.PID = P.POST_ID) AS WISH_COUNT, 
+            R.*, 
+            U.NAME
         FROM POST P
         LEFT JOIN ROOM R ON P.RID = R.ROOM_ID
+        INNER JOIN "USER" U ON P."UID" = U.USER_ID
         WHERE P.POST_ID = :1
         """
         cursor.execute(sql, [post_id])
@@ -184,6 +188,7 @@ def get_post_details(post_id: str, conn) -> str:
                 "POST_TITLE": row[6], 
                 "POST_CONTENT": row[7], 
                 "WISH_COUNT": row[8],
+                "POST_CREATOR": row[37],
             }
 
             # ROOM 데이터를 추가할 때 RID의 null 체크를 고려합니다.

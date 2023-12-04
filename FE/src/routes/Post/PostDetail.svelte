@@ -4,6 +4,7 @@
     import { access_token, is_login, username as currentUsername } from '../../lib/store'; // currentUsername 추가
     import { push } from 'svelte-spa-router';
     import { getNotificationsContext } from 'svelte-notifications';
+    import { DateTimeFilter } from '../../util';
 
     const { addNotification } = getNotificationsContext();
 
@@ -24,10 +25,10 @@
                 });
                 if (response) {
                     postDetails = JSON.parse(response);
-                    console.log("Post UID:", postDetails.UID);
+                    console.log("Post UID:", postDetails.POST_CREATOR);
                     console.log("Current Username:", $currentUsername);
 
-                    canLike = postDetails.UID !== $currentUsername;
+                    canLike = postDetails.POST_CREATOR !== $currentUsername;
                     console.log("Can Like:", canLike);
                     if (canLike) {
                         await checkWishList();
@@ -219,9 +220,16 @@
             <div class="post-header">
                 <h2>{postDetails.POST_TITLE}</h2>
                 <div class="post-meta">
-                    <span><strong>Date:</strong> {postDetails.POST_DATE}</span> |
-                    <span><strong>Views:</strong> {postDetails.POST_VIEW_COUNT}</span> |
-                    <span><strong>Status:</strong> {postDetails.POST_STATUS}</span>
+                    <span> {#if postDetails.POST_STATUS === 0}
+                          들어오세유
+                      {:else if postDetails.POST_STATUS === 1}
+                          들어갈래유
+                      {:else if postDetails.POST_STATUS === 2}
+                          끝났뿌따
+                      {/if}</span> | 
+                    <span><strong>글쓴이:</strong> {postDetails.POST_CREATOR}</span> | 
+                    <span><strong>날짜:</strong> {DateTimeFilter(postDetails.POST_DATE)}</span> | 
+                    <span><strong>조회수:</strong> {postDetails.POST_VIEW_COUNT}</span>
                 </div>
             </div>
             <div class="post-body">
@@ -229,7 +237,12 @@
             </div>
             {#if postDetails.RID}
                 <div class="room-details">
-                    <h3>Room Information</h3>
+                    <h3 class="room-info-head">
+                        Room Information of <span class="room-name">{postDetails.ROOM_NICKNAME}</span> /
+                        <span class={postDetails.ROOM_STATUS == 0 ? 'room-status incomplete' : 'room-status complete'}>
+                            {postDetails.ROOM_STATUS == 0 ? '연결 미완료' : '연결 완료'}
+                        </span>
+                    </h3>
                     <p><strong>Address:</strong> {postDetails.ADDRESS}</p>
                     <p><strong>Area:</strong> {postDetails.AREA}</p>
                     <p><strong>Deposit:</strong> {postDetails.DEPOSIT}</p>
@@ -291,8 +304,8 @@
                 </div>
             {/if}
             <div class="post-actions">
-                <button class="chat-button" on:click={startChat}>Start Chat</button>
                 {#if $access_token && canLike}
+                    <button class="chat-button" on:click={startChat}>Start Chat</button>
                     <div class="like-button" on:click={toggleLike}>
                         {#if isLiked}
                             <img src="/full-heart.png" alt="Liked" />
@@ -337,6 +350,25 @@
     .post-body {
         padding: 20px;
         line-height: 1.6;
+    }
+    .room-info-head {
+        font-size: 1.2em; /* Adjust the font size */
+        color: #333; /* Dark text color for readability */
+        margin: 10px 0; /* Margin for spacing */
+        font-weight: normal; /* Normal font weight */
+    }
+
+    .room-name {
+        color: #007BFF; /* Highlight color for the room name */
+        font-weight: bold; /* Bold font weight for emphasis */
+    }
+    .room-status.incomplete {
+        color: #28A745; /* Green color for incomplete status */
+        font-weight: bold; /* Bold font weight for emphasis */
+    }
+    .room-status.complete {
+        color: #DC3545; /* Red color for complete status */
+        font-weight: bold; /* Bold font weight for emphasis */
     }
 
     .room-details {

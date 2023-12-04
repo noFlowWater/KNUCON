@@ -3,6 +3,7 @@
     import request from '../../lib/request'; 
     import { push } from 'svelte-spa-router';
     import { access_token, is_login } from '../../lib/store'; 
+    import { DateTimeFilter, getPostStatusClass } from "../../util";
 
     let posts = [];
     let isLoading = true;
@@ -45,20 +46,20 @@
           <div class="post" on:click={() => navigateToPostDetail(post.POST_ID)}>
               <div class="post-header">
                   <h2 class="post-title">{post.POST_TITLE}</h2>
-                  <span class="post-status">
-                      {#if post.POST_STATUS === 0}
-                          들어오세유
-                      {:else if post.POST_STATUS === 1}
-                          들어갈래유
-                      {:else if post.POST_STATUS === 2}
-                          끝났뿌따
-                      {/if}
-                  </span>
+                  <span class={getPostStatusClass(post.POST_STATUS)}>
+                    {#if post.POST_STATUS === 0}
+                        들어오세유
+                    {:else if post.POST_STATUS === 1}
+                        들어갈래유
+                    {:else if post.POST_STATUS === 2}
+                        끝났뿌따
+                    {/if}
+                </span>
               </div>
               <div class="post-details">
                   <span class="post-id">ID: {post.POST_ID}</span>
                   <span class="post-author">글쓴이: {post.UID}</span>
-                  <span class="post-date">{post.POST_DATE}</span>
+                  <span class="post-date">{DateTimeFilter(post.POST_DATE)}</span>
                   <span class="post-views">조회수: {post.POST_VIEW_COUNT}</span>
                   <span class="post-wishes">찜: {post.WISH_COUNT}</span>
               </div>
@@ -108,13 +109,24 @@
     margin: 0;
 }
 
-.post-status {
-    background-color: #28a745;
-    color: white;
-    padding: 3px 6px;
-    border-radius: 4px;
-    font-size: 14px;
-}
+    .post-status {
+        color: white;
+        padding: 3px 6px;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .status-coming {
+        background-color: #28a745; /* Green for coming */
+    }
+
+    .status-going {
+        background-color: #ffc107; /* Yellow for going */
+    }
+
+    .status-ended {
+        background-color: #dc3545; /* Red for ended */
+    }
 
 .post-details {
     display: flex;

@@ -3,6 +3,7 @@
     import { push } from 'svelte-spa-router';
     import request from '../lib/request'; 
     import { access_token, is_login } from '../lib/store'; 
+    import { DateTimeFilter } from '../util';
 
     let chatRooms = []; // This will hold the list of chat rooms
     let isLoading = true;
@@ -43,8 +44,8 @@
                     <div class="chatroom" on:click={enterChatRoom(chatRoom.POST_ID, chatRoom.CHATROOM_ID)}>
                         <h2>{chatRoom.POST_TITLE}</h2>
                         <p class="user-name">User: {chatRoom.OTHER_USER_NAME}</p>
-                        <p class="latest-message">Last message: {chatRoom.LATEST_MESSAGE}</p>
-                        <p class="message-time">{chatRoom.LATEST_MESSAGE_TIME}</p>
+                        <p class="latest-message">가장 최근 메세지: {chatRoom.LATEST_MESSAGE}</p>
+                        <p class="message-time">{DateTimeFilter(chatRoom.LATEST_MESSAGE_TIME)}</p>
                     </div>
                 {/each}
             </div>

@@ -1,8 +1,11 @@
 <script>
-    import { navigateTo } from "../../util";
+    import { navigateTo, DateTimeFilter, getPostStatusClass } from "../../util";
     import { access_token } from "../../lib/store";
     import { push } from 'svelte-spa-router';
     import request from '../../lib/request.js';
+
+    let isLoading = false;
+    let isError = false;
   
     // Reactive variables for form inputs
     let roomType = [];
@@ -49,6 +52,8 @@
     async function fetchPosts() {
       let response;
       let requestBody = {};
+      
+      isLoading = true;
 
       // handling list variables
       if (roomType.length > 0) requestBody.room_type = roomType;
@@ -92,6 +97,9 @@
             totalPages = response[1];  // Assuming the backend sends this value
         } catch (error) {
             console.error('Error fetching posts:', error);
+            isError = true;
+        } finally {
+          isLoading = false;
         }
     }
 
@@ -404,14 +412,18 @@
 
   <!-- Post Display Section -->
   <div class="display-container">
-    {#if posts.length > 0}
+    {#if isLoading}
+    <p>Loading posts...</p>
+    {:else if isError}
+    <p>게시글을 불러오는 데 문제가 발생했습니다.</p>
+    {:else if posts.length > 0}
       <div class="post-container">
         <strong> Post Details:</strong>
         {#each posts as post}
           <div class="post" on:click={() => navigateToPostDetail(post.post_id)}>
               <div class="post-header">
                   <h2 class="post-title">{post.post_title}</h2>
-                  <span class="post-status">
+                  <span class={getPostStatusClass(post.post_status)}>
                       {#if post.post_status === 0}
                           들어오세유
                       {:else if post.post_status === 1}
@@ -424,7 +436,7 @@
               <div class="post-details">
                   <span class="post-id">ID: {post.post_id}</span>
                   <span class="post-author">글쓴이: {post.user_id}</span>
-                  <span class="post-date">{post.post_date}</span>
+                  <span class="post-date">{DateTimeFilter(post.post_date)}</span>
                   <span class="post-views">조회수: {post.post_view_count}</span>
                   <span class="post-wishes">찜: {post.wish_count}</span>
               </div>
@@ -435,6 +447,7 @@
   </div>
 
   <!-- Page Controls -->
+  {#if !isLoading}
   <div class="pagination-container">
     {#if currentPage > 1}
       <button on:click={previousPage} class="btn-pagination">이전 페이지</button>
@@ -446,6 +459,7 @@
       <button on:click={nextPage} class="btn-pagination">다음 페이지</button>
     {/if}
   </div>
+  {/if}
 </div>
 
 
@@ -505,13 +519,24 @@
     margin: 0;
 }
 
-.post-status {
-    background-color: #28a745;
-    color: white;
-    padding: 3px 6px;
-    border-radius: 4px;
-    font-size: 14px;
-}
+    .post-status {
+        color: white;
+        padding: 3px 6px;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .status-coming {
+        background-color: #28a745; /* Green for coming */
+    }
+
+    .status-going {
+        background-color: #ffc107; /* Yellow for going */
+    }
+
+    .status-ended {
+        background-color: #dc3545; /* Red for ended */
+    }
 
 .post-details {
     display: flex;
