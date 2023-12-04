@@ -88,3 +88,22 @@ test
 ### 💡 이지수 (jisu74) : [lgs010704@gmail.com](mailto:lgs010704@gmail.com)
 
 ### 💡 노유수 (noFlowWater) : [noyusu98@gmail.com](mailto:noyusu98@gmail.com)
+
+
+# 초기 설정 및 실행 가이드
+
+### 1. 데이터베이스 생성
+: oracle에서 다음 sql 파일을 열고, 전체 실행한다.
+
+### 2. 프로젝트 클론
+: VSCode 터미널을 열고, 다음 명령어를 입력하여 프로젝트를 로컬 시스템에 클론합니다.
+'''git clone https://github.com/noFlowWater/KNUCON.git'''
+
+### 3. 데이터베이스 연결 및 로컬 서버 실행
+> 1번 터미널에서 아래 명령어를 순서대로 입력한다.
+'''cd KNUCON/BE'''
+'''uvicorn main:app --reload'''
+> 2번 터미널에서 아래 명령어를 순서대로 입력한다.
+'''cd KNUCON/FE'''
+'''npm i'''
+'''npm run dev'''
