@@ -35,3 +35,10 @@ def list_report(user_id, conn):
     cursor.close()
     conn.close()
     return report_list
+
+def check_report_exists(reporter_uid, reported_uid, conn):
+    cursor = conn.cursor()
+    sql = "SELECT COUNT(*) FROM report WHERE reporter_uid = :reporter_uid AND reported_uid = :reported_uid"
+    cursor.execute(sql, [reporter_uid, reported_uid])
+    (count,) = cursor.fetchone()
+    return count > 0

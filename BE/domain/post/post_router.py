@@ -30,6 +30,9 @@ def create_post(user_id: str = Depends(get_current_user_id), conn=Depends(get_db
 def create_post(user_id: str = Depends(get_current_user_id), conn=Depends(get_db_connection)):
     return post_crud.check_my_post_status_1(user_id, conn)
 
+@router.get("/recommend")
+def recommend_post(user_id: str = Depends(get_current_user_id), conn=Depends(get_db_connection)):
+    return post_crud.recommend_post(user_id, conn)
 
 @router.get("/{post_id}")
 def read_post_details(post_id: str, conn=Depends(get_db_connection)):

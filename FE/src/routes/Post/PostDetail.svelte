@@ -208,6 +208,26 @@
         }
     }
 
+
+    let showReportDialog = false; // 신고 대화 상자를 표시할지 여부
+    let reportReasons = { // 신고 사유
+        professionalSeller: false,
+        fraud: false,
+        abusiveLanguage: false,
+        other: false
+    };
+
+    // 신고하기 버튼을 눌렀을 때 실행되는 함수
+    function reportPost() {
+        // 신고 사유가 선택되었는지 확인
+        if (!Object.values(reportReasons).some(v => v)) {
+            alert('신고 사유를 선택해주세요.');
+            return;
+        }
+        // 서버에 신고 내용 전송 로직 추가...
+        alert('신고 접수되었습니다');
+        showReportDialog = false; // 대화 상자 숨기기
+    }
 </script>
 
 <div class="page-container">
@@ -424,5 +444,4 @@
     .chat-button:hover {
         background-color: #0056b3; /* 좀 더 어두운 파란색 */
     }
-
 </style>
