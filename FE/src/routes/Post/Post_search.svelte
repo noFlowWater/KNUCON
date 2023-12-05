@@ -7,6 +7,8 @@
 
   let isLoading = false;
   let isError = false;
+
+  let checked = false;
   
   // Reactive variables for form inputs
   let roomType = [];
@@ -14,6 +16,8 @@
   let direction = [];
   let floor = [];
   let gate = [];
+  let isIn = [];
+  let postStatus = [];
   let stoveType = [];
 
   // Variables for option selection 1
@@ -56,34 +60,38 @@
     
     isLoading = true;
 
-    // handling list variables
-    if (roomType.length > 0) requestBody.room_type = roomType;
-    if (isContract.length > 0) requestBody.is_contract = isContract;
-    if (direction.length > 0) requestBody.direction = direction;
-    if (floor.length > 0) requestBody.floor = floor;
-    if (gate.length > 0) requestBody.gate = gate;
-    if (stoveType.length > 0) requestBody.stove_type = stoveType;
-    
-    // handling range variables
-    requestBody.area = areaRange;
-    requestBody.deposit = depositRange;
-    requestBody.price = priceRange;
+    if(!checked){
 
-    // handling boolean variables
-    if (elecBill) requestBody.elec_bill = 1;
-    if (waterBill) requestBody.water_bill = 1;
-    if (rentAid) requestBody.rent_aid = 1;
-    if (gasBill) requestBody.gas_bill = 1;
-    if (fridge) requestBody.fridge = 1;
-    if (ac) requestBody.ac = 1;
-    if (mw) requestBody.mw = 1;
-    if (dryer) requestBody.dryer = 1;
-    if (balcony) requestBody.balcony = 1;
-    if (kitSep) requestBody.kit_sep = 1;
-    if (preview) requestBody.preview = 1;
-    if (extension) requestBody.extension = 1;
+      if (postStatus.length > 0) requestBody.post_status = postStatus;
+
+      // handling list variables
+      if (roomType.length > 0) requestBody.room_type = roomType;
+      if (isContract.length > 0) requestBody.is_contract = isContract;
+      if (direction.length > 0) requestBody.direction = direction;
+      if (floor.length > 0) requestBody.floor = floor;
+      if (gate.length > 0) requestBody.gate = gate;
+      if (stoveType.length > 0) requestBody.stove_type = stoveType;
+      
+      // handling range variables
+      requestBody.area = areaRange;
+      requestBody.deposit = depositRange;
+      requestBody.price = priceRange;
+
+      // handling boolean variables
+      if (elecBill) requestBody.elec_bill = 1;
+      if (waterBill) requestBody.water_bill = 1;
+      if (rentAid) requestBody.rent_aid = 1;
+      if (gasBill) requestBody.gas_bill = 1;
+      if (fridge) requestBody.fridge = 1;
+      if (ac) requestBody.ac = 1;
+      if (mw) requestBody.mw = 1;
+      if (dryer) requestBody.dryer = 1;
+      if (balcony) requestBody.balcony = 1;
+      if (kitSep) requestBody.kit_sep = 1;
+      if (preview) requestBody.preview = 1;
+      if (extension) requestBody.extension = 1;
+    }
     if (latest_desc) requestBody.latest_desc = 1;
-
     // handling page parameters
     requestBody.page = currentPage;
     requestBody.pageSize = pageSize;
@@ -175,6 +183,33 @@
 <div class="container mx-auto" style="margin-top: 80px;">
   <form on:submit|preventDefault={fetchPosts}>
     <table class="table table-bordered border-dark">
+      <!-- Post Status -->
+      <tr>
+        <td><label style="margin-right: 60px;">게시글 종류:</label></td>
+        <td>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" id="in" value="1" bind:group={isIn} bind:checked={checked}>
+            <label class="form-check-label" for="in">들어갈래유</label>
+          </div>
+        </td>
+      </tr>
+      <!-- Post Status -->
+      {#if !checked}
+      <tr>
+        <td><label style="margin-right: 60px;">게시글 종류:</label></td>
+        <td>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" id="out" value="0" bind:group={postStatus}>
+            <label class="form-check-label" for="out">들어오세유</label>
+          </div>
+          
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" id="done" value="2" bind:group={postStatus}>
+            <label class="form-check-label" for="done">끝났뿌따</label>
+          </div>
+        </td>
+      </tr>
+      
       <!-- Room Type -->
       <tr>
         <td><label>방 개수:</label></td>
@@ -413,6 +448,7 @@
       </div>
     </td>
   </tr>
+  {/if}
   <!-- Orderby -->
   <tr>
     <td><label style="margin-right: 60px;">정렬:</label></td>
@@ -425,6 +461,7 @@
       <label for="latest_order">최신순</label>
     </td>  
   </tr>
+  
 
 </table>
 

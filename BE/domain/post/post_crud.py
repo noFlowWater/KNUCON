@@ -31,7 +31,7 @@ def get_total_post_count(conn, search_params: dict):
     # Construct the WHERE clause as done in list_post function
     query_conditions = []
     bind_params = {}
-    
+    count_sql=''
     for key, value in search_params.items():
         if value is None :
             continue  # Skip None values
@@ -56,13 +56,21 @@ def get_total_post_count(conn, search_params: dict):
             bind_params[key] = int(value)
 
     query = " AND ".join(query_conditions)
-
-    count_sql = f"""SELECT COUNT(DISTINCT p.post_id)
-                    FROM post p
-                    LEFT JOIN room r ON p.rid = r.room_id
-                    LEFT JOIN wishes w ON p.post_id = w.pid
-                    WHERE {query}"""
-    
+    # search_params.post_status 따라서 count하고 싶은 거
+    if query:
+        count_sql = f"""SELECT COUNT(DISTINCT p.post_id)
+                        FROM post p
+                        LEFT JOIN room r ON p.rid = r.room_id
+                        LEFT JOIN wishes w ON p.post_id = w.pid
+                        WHERE {query}"""
+    else:
+        count_sql = f"""SELECT COUNT(DISTINCT p.post_id)
+                        FROM post p
+                        LEFT JOIN room r ON p.rid = r.room_id
+                        LEFT JOIN wishes w ON p.post_id = w.pid
+                        WHERE p.POST_STATUS = 1
+                        """
+        
     try:
         cursor.execute(count_sql, bind_params)
         result = cursor.fetchone()
@@ -81,6 +89,8 @@ def list_post(conn, search_params: dict, page_number: int = 1, page_size: int = 
 
     post_list = []
     post_details = []
+    sql = ''
+    
     cursor = conn.cursor()
 
     query_conditions = []
@@ -114,7 +124,8 @@ def list_post(conn, search_params: dict, page_number: int = 1, page_size: int = 
         order_direction = "P.post_date DESC, COUNT(w.pid) DESC"
     else:
         order_direction = "COUNT(w.pid) DESC, P.post_date DESC"
-
+        
+        
     # Constructing the SQL query with search parameters
     query = " AND ".join(query_conditions)
     
@@ -126,14 +137,24 @@ def list_post(conn, search_params: dict, page_number: int = 1, page_size: int = 
 
     offset = (page_number - 1) * page_size
 
-    sql = f"""SELECT p.post_id, COUNT(w.pid) as wish_count
-      FROM post p 
-      LEFT JOIN room r ON p.rid = r.room_id 
-      LEFT JOIN wishes w ON p.post_id = w.pid 
-      WHERE {query} 
-      GROUP BY p.post_id, P.post_date
-      ORDER BY {order_direction}
-      OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY"""
+    if query:
+        sql = f"""SELECT p.post_id, COUNT(w.pid) as wish_count
+        FROM post p 
+        LEFT JOIN room r ON p.rid = r.room_id 
+        LEFT JOIN wishes w ON p.post_id = w.pid 
+        WHERE {query}
+        GROUP BY p.post_id, P.post_date
+        ORDER BY {order_direction}
+        OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY"""
+    else:
+        sql = f"""SELECT p.post_id, COUNT(w.pid) as wish_count
+        FROM post p 
+        LEFT JOIN room r ON p.rid = r.room_id 
+        LEFT JOIN wishes w ON p.post_id = w.pid 
+        WHERE POST_STATUS = 1
+        GROUP BY p.post_id, P.post_date
+        ORDER BY {order_direction}
+        OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY"""
 
     bind_params['limit'] = page_size
     bind_params['offset'] = offset

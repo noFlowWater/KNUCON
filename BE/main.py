@@ -19,6 +19,7 @@ origins=[
         "http://localhost:5173",     # Need Svelte(Frontend) server url
         "http://155.230.36.27:5173",
         "http://127.0.0.1:5173",
+        "http://192.168.0.165:5173/",
         ]  
 
 app.add_middleware(

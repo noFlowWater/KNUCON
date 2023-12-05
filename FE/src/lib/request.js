@@ -2,7 +2,7 @@ import qs from "qs"
 
 const request = async (operation, url, params, headers = {}) => {
   let method = operation.toUpperCase();
-  let _url = 'http://localhost:8000' + url;
+  let _url = 'http://192.168.0.165:8000' + url;
 
   // 기본 헤더 설정
   const defaultHeaders = {

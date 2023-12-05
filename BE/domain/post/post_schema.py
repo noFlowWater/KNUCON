@@ -18,11 +18,11 @@ class PostSearchParams(BaseModel):
     is_contract: Optional[list] = None
     direction: Optional[list] = None
     floor: Optional[list] = None
-    area: Optional[dict] 
+    area: Optional[dict] = None
     gate: Optional[list] = None
-    deposit: Optional[dict] 
+    deposit: Optional[dict] = None
     stove_type: Optional[list] = None
-    price: Optional[dict]  
+    price: Optional[dict] = None
     elec_bill: Optional[bool] = None
     water_bill: Optional[bool] = None
     rent_aid: Optional[bool] = None
@@ -35,6 +35,7 @@ class PostSearchParams(BaseModel):
     preview: Optional[bool] = None
     extension: Optional[bool] = None
     latest_desc: Optional[bool] = None
+    post_status: Optional[list] = None
     page: int = 1
     page_size: int = 10
 
