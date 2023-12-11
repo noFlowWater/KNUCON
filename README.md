@@ -1,9 +1,6 @@
 # <img src="knu_logo.svg" width="50" height="50"> 경북대 이어살기 커뮤니티 [KNU - CON]
 
 
-
-test
-
 ### 1. [서비스 소개](notion://www.notion.so/928bf1591414452798c30e166d1b8d69#%EC%84%9C%EB%B9%84%EC%8A%A4-%EC%86%8C%EA%B0%9C)
 
 ### 2. [서비스 플로우](notion://www.notion.so/928bf1591414452798c30e166d1b8d69#%EC%84%9C%EB%B9%84%EC%8A%A4-%ED%94%8C%EB%A1%9C%EC%9A%B0)
@@ -87,31 +84,158 @@ test
 
 ### 💡 노유수 (noFlowWater) : [noyusu98@gmail.com](mailto:noyusu98@gmail.com)
 
+# 개발 환경 
+
+## 윈도우:
+
+## 맥: 
 
 # 초기 설정 및 실행 가이드
 
-##(1) 윈도우
-### 1. 데이터베이스 생성
-> oracle에서 다음 sql 파일을 열고, 전체 실행합니다.
+## 1. 깃 클론
 
-### 2. 프로젝트 클론
 > VSCode 터미널을 열고, 다음 명령어를 입력하여 프로젝트를 로컬 시스템에 클론합니다.
+```
+git clone -b dev https://github.com/noFlowWater/KNUCON.git
+```
 
-git clone https://github.com/noFlowWater/KNUCON.git
+## 2. oracle instantclient 설치
 
-### 3. 데이터베이스 연결 및 로컬 서버 실행
-> 1번 터미널에서 아래 명령어를 순서대로 입력합니다.
+> 백엔드 서버가 oracle DBMS와 통신하기 위해 파이썬 oracledb 라이브러리를 사용합니다.
+> oracledb 라이브러리 사용을 위해서 oracle instantclient가 필요합니다.
 
-cd KNUCON/BE
+### (1) 윈도우
 
-uvicorn main:app --reload
+https://www.oracle.com/kr/database/technologies/instant-client/downloads.html
+> Windows 버전(64bit, 32bit)에 맞는 클라이언트를 설치합니다.
 
-> 2번 터미널에서 아래 명령어를 순서대로 입력합니다.
-> 
-cd KNUCON/FE
+### (2) 맥 (인텔 맥, 애플 실리콘 맥 동일)
 
+https://www.oracle.com/kr/database/technologies/instant-client/downloads.html
+> mac x86 버전(dmg)을 다운로드합니다.
+> **oracle에서는 공식적으로 애플 실리콘 버전 instantclient를 제공하지 않습니다.**
+> 위의 instant-client를 설치하여 사용하면 경고 메시지가 나오지만 oracledb 라이브러리 사용에 문제는 없었습니다.
+> 이후 애플 실리콘 버전의 instantclient가 나온다면, 해당 클라이언트를 설치하여 사용하는 것을 권장합니다.
+
+> 다운로드 된 dmg 파일을 더블클릭해 마운트합니다.
+
+![image](https://github.com/noFlowWater/KNUCON/assets/103080930/64dbb8aa-1419-4678-b6bc-3c6fc159a4b5)
+
+> 위 사진처럼 나온다면 정상적으로 마운트 된 것입니다.
+
+> 마운트 후 터미널에서 
+```
+cd /Volumes/instantclient-basic-macos.x64-19.8.0.0.0dbru
+```
+로 마운트된 경로로 이동하여
+
+```
+./install_ic.sh
+```
+를 실행합니다.
+
+> install_ic.sh 파일은 마운트된 폴더 내의 파일을 Downloads로 복사합니다.
+> Downloads 폴더 아래 instantclient-basic-macos.x64-19.8.0.0.0dbru 폴더가 잘 생성되었다면 eject 합니다.
+
+```
+cd /opt/oracle
+```
+로 기존에 /opt/oracle 폴더가 존재하는지 확인합니다.
+
+폴더가 없다면,
+
+```
+sudo mkdir /opt/oracle
+```
+을 통해 oracle 폴더를 생성합니다.
+
+이후 
+```
+mv $HOME/Downloads/instantclient-basic-macos.x64-19.8.0.0.0dbru /opt/oracle/instantclient-basic-macos.x64-19.8.0.0.0dbru
+```
+를 통해 instantclient 폴더를 이동합니다.
+
+### (테스트 데이터 생성, 필요한 경우 실행)
+
+> oracle instantclient에서 sql 파일을 실행합니다.
+
+> START /path/to/file/Dacsternary_Tables_Init.sql
+> START /path/to/file/Dacsternary_Insert.sql
+
+
+## 3. 필요 패키지 다운로드
+
+### (1) 백엔드
+
+> 필요한 패키지 정보는 BE/ 폴더 내 requirements.txt 파일에 저장되어 있습니다.
+```
+pip install requirements.txt
+```
+로 필요한 패키지를 설치합니다.
+
+pip 대신 pip3를 사용한다면
+```
+pip3 install requirements.txt
+```
+로 패키지를 설치합니다.
+
+### (2) 프론트엔드
+
+> 필요한 패키지 정보는 FE/ 폴더 내 packages.json 파일에 저장되어 있습니다.
+```
+npm install
+```
+또는
+```
 npm i
+```
+로 패키지를 설치합니다.
 
+## 4. 서비스 실행
+
+### (1) 프론트엔드
+
+> FE/ 폴더에서
+```
 npm run dev
+```
+로 서버를 실행합니다.
 
-##(2) 맥
+https://localhost:5173 으로 프론트엔드 서버가 실행됩니다.
+
+프론트엔드 서버 IP 주소를 변경하려면 
+FE/packages.json 파일의 
+```
+"dev": "vite --host {IP 주소} --port 포트번호",
+```
+부분을 수정하면 됩니다.
+
+**프론트엔드 서버 주소 수정 후에는 BE/main.py의 origins 리스트에 변경한 IP를 추가해야합니다.**
+```
+origins=[
+        ... ,
+        "{변경한 IP 주소}",
+        ]  
+```
+
+### (2) 백엔드
+
+> BE/ 폴더에서
+```
+uvicorn main:app --reload
+```
+를 실행합니다.
+
+https://localhost:5173 으로 백엔드 서버가 실행됩니다.
+
+프론트엔드 서버 IP 주소를 변경하려면 
+--reload 뒤에  
+```
+--host {IP 주소} --port {포트 번호} 
+```
+를 추가합니다.
+
+**백엔드 서버 주소 수정 후에는 FE/src/lib/request.js의 _url 주소를 변경해야합니다.**
+```
+let _url = '{변경된 주소}' + url;
+```
